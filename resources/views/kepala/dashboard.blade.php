@@ -1,4 +1,8 @@
-@extends('layouts.kepala')
+@extends('layouts.app')
+
+@section('sidebar')
+    @include('layouts.partials.sidebar-kepala')
+@endsection
 
 @section('content')
 
@@ -23,8 +27,7 @@
       <h3>0</h3>
     </div>
   </div>
+
 </div>
 
 @endsection
-
-

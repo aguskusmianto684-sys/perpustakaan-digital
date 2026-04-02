@@ -58,6 +58,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/petugas/peminjaman', [PeminjamanController::class, 'index']);
     Route::get('/petugas/peminjaman/create', [PeminjamanController::class, 'create']);
     Route::post('/petugas/peminjaman/store', [PeminjamanController::class, 'store']);
+    Route::get('/petugas/peminjaman/tolak/{id}', [PeminjamanController::class, 'tolak']);
     Route::get('/petugas/peminjaman/konfirmasi/{id}', [PeminjamanController::class, 'konfirmasi']);
     Route::get('/petugas/peminjaman/kembalikan/{id}', [PeminjamanController::class, 'kembalikan']);
 

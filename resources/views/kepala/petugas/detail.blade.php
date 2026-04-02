@@ -1,4 +1,8 @@
-@extends('layouts.kepala')
+@extends('layouts.app')
+
+@section('sidebar')
+    @include('layouts.partials.sidebar-kepala')
+@endsection
 
 @section('content')
 

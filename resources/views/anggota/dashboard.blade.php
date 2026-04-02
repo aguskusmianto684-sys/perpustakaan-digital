@@ -1,4 +1,8 @@
-@extends('layouts.anggota')
+@extends('layouts.app')
+
+@section('sidebar')
+    @include('layouts.partials.sidebar-anggota')
+@endsection
 
 @section('content')
 
@@ -26,5 +30,3 @@
 </div>
 
 @endsection
-
-

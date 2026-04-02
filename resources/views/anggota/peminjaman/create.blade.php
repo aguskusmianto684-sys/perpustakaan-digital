@@ -1,4 +1,8 @@
-@extends('layouts.anggota')
+@extends('layouts.app')
+
+@section('sidebar')
+    @include('layouts.partials.sidebar-anggota')
+@endsection
 
 @section('content')
 
@@ -14,16 +18,32 @@
 
                 <input type="hidden" name="id_buku" value="{{ $buku->id_buku }}">
 
+                {{-- Nama peminjam --}}
                 <div class="mb-3">
                     <label class="form-label">Nama Peminjam</label>
                     <input type="text" class="form-control"
                            value="{{ $user->username }}" readonly>
                 </div>
 
+                {{-- Buku --}}
                 <div class="mb-3">
                     <label class="form-label">Buku Yang Akan Dipinjam</label>
                     <input type="text" class="form-control"
                            value="{{ $buku->judul }} - stok {{ $buku->stok }}" readonly>
+                </div>
+
+                {{-- Tanggal pinjam --}}
+                <div class="mb-3">
+                    <label class="form-label">Tanggal Pinjam</label>
+                    <input type="date" class="form-control"
+                           value="{{ date('Y-m-d') }}" readonly>
+                </div>
+
+                {{-- Tanggal kembali --}}
+                <div class="mb-3">
+                    <label class="form-label">Tanggal Kembali</label>
+                    <input type="date" class="form-control"
+                           value="{{ date('Y-m-d', strtotime('+7 days')) }}" readonly>
                 </div>
 
                 <div class="text-end mt-4">

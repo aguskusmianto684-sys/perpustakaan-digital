@@ -1,4 +1,8 @@
-@extends('layouts.anggota')
+@extends('layouts.app')
+
+@section('sidebar')
+    @include('layouts.partials.sidebar-anggota')
+@endsection
 
 @section('content')
 
@@ -28,30 +32,66 @@
 
                 <tr>
 
+                    {{-- nomor --}}
                     <td>{{ $index + 1 }}</td>
 
+                    {{-- buku --}}
                     <td>
                         <img src="{{ asset('uploads/buku/'.$d->gambar) }}" width="40">
                         {{ $d->judul }}
                     </td>
 
+                    {{-- tanggal pinjam --}}
                     <td>{{ $d->tgl_pinjam }}</td>
 
-                    <td>{{ $d->tgl_kembali }}</td>
-
+                    {{-- tanggal kembali --}}
                     <td>
-                        @if($d->status == 'menunggu')
-                            <span class="badge bg-warning">Menunggu</span>
 
+                        {{-- tanggal real --}}
+                        @if($d->tgl_dikembalikan)
+                            {{ $d->tgl_dikembalikan }}
+                        @else
+                            -
+                        @endif
+
+                        {{-- deadline --}}
+                        <br>
+                        <small class="text-muted">
+                            Deadline: {{ $d->tgl_kembali }}
+                        </small>
+
+                    </td>
+
+                    {{-- status --}}
+                    <td>
+
+                        {{-- ditolak --}}
+                        @if($d->status == 'ditolak')
+                            <span class="badge bg-dark">Ditolak</span>
+
+                        {{-- terlambat --}}
+                        @elseif($d->status == 'dipinjam' && now()->gt($d->tgl_kembali))
+                            <span class="badge bg-danger">Terlambat</span>
+
+                        {{-- dipinjam --}}
                         @elseif($d->status == 'dipinjam')
                             <span class="badge bg-primary">Dipinjam</span>
 
-                        @else
-                            <span class="badge bg-success">Dikembalikan</span>
-                        @endif
-                    </td>
+                        {{-- menunggu --}}
+                        @elseif($d->status == 'menunggu')
+                            <span class="badge bg-warning text-dark">Menunggu</span>
 
-                </tr>
+                        {{-- dikembalikan --}}
+                        @elseif($d->status == 'dikembalikan')
+                            <span class="badge bg-success">Dikembalikan</span>
+
+                        {{-- fallback --}}
+                        @else
+                            <span class="badge bg-secondary">Tidak diketahui</span>
+
+                        @endif
+
+                    </td>
 
                 @endforeach
 

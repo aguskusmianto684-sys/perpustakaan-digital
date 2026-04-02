@@ -1,4 +1,8 @@
-@extends('layouts.petugas')
+@extends('layouts.app')
+
+@section('sidebar')
+    @include('layouts.partials.sidebar-petugas')
+@endsection
 
 @section('content')
 
@@ -17,6 +21,16 @@
                 <div class="col-md-6 mb-3">
                     <label>Nama</label>
                     <input type="text" name="nama" class="form-control" required>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label>Username</label>
+                    <input type="text" name="username" class="form-control" required>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label>Password</label>
+                    <input type="password" name="password" class="form-control" required>
                 </div>
 
                 <div class="col-md-6 mb-3">

@@ -1,55 +1,78 @@
-@extends('layouts.anggota')
+@extends('layouts.app')
+
+@section('sidebar')
+    @include('layouts.partials.sidebar-anggota')
+@endsection
 
 @section('content')
 
 <div class="container">
 
-    <h4 class="mb-4">Detail Buku</h4>
+    {{-- judul halaman --}}
+    <h4 class="mb-4 fw-semibold">
+        <i class="ti ti-book"></i> Detail Buku
+    </h4>
 
-    <div class="card shadow-sm">
+    <div class="card shadow-sm border-0">
         <div class="row g-0">
 
-            {{-- GAMBAR --}}
+            {{-- gambar buku --}}
             <div class="col-md-4">
                 <img src="{{ asset('uploads/buku/'.$buku->gambar) }}"
                      class="img-fluid rounded-start w-100"
                      style="height: 100%; object-fit: cover;">
             </div>
 
-            {{-- DETAIL --}}
             <div class="col-md-8">
-                <div class="card-body">
+                <div class="card-body d-flex flex-column">
 
-                    <h4 class="card-title">{{ $buku->judul }}</h4>
+                    {{-- judul buku --}}
+                    <h4 class="fw-bold mb-2">
+                        {{ $buku->judul }}
+                    </h4>
 
-                    <p class="text-muted mb-2">
-                        Penulis : {{ $buku->penulis }} <br>
-                        Penerbit : {{ $buku->penerbit }} <br>
-                        Tahun : {{ $buku->tahun_terbit }} <br>
-                        Kategori : {{ $buku->kategori }}
+                    {{-- info buku --}}
+                    <p class="text-muted mb-3 small">
+                        <b>Penulis:</b> {{ $buku->penulis }} <br>
+                        <b>Penerbit:</b> {{ $buku->penerbit }} <br>
+                        <b>Tahun:</b> {{ $buku->tahun_terbit }} <br>
+                        <b>Kategori:</b> {{ \Illuminate\Support\Str::limit($buku->kategori, 30) }}
                     </p>
 
-                    <p>{{ $buku->deskripsi }}</p>
+                    {{-- deskripsi buku --}}
+                    <p class="mb-3">
+                        {{ $buku->deskripsi }}
+                    </p>
 
-                    {{-- STATUS STOK --}}
+                    {{-- status stok --}}
                     @if($buku->stok > 0)
-                        <span class="badge bg-success mb-3">Stok tersedia</span>
+                        <span class="mb-3">
+                            Stok: {{ $buku->stok }}
+                        </span>
                     @else
-                        <span class="badge bg-danger mb-3">Stok habis</span>
+                        <span class="badge bg-danger mb-3">
+                            Habis
+                        </span>
                     @endif
 
-                    {{-- BUTTON --}}
-                    <div class="mt-3">
+                    {{-- tombol aksi --}}
+                    <div class="mt-3 d-flex gap-2">
 
-                        <a href="/anggota/buku" class="btn btn-secondary">
+                        {{-- tombol kembali --}}
+                        <a href="/anggota/buku" class="btn btn-secondary btn-sm">
                             Kembali
                         </a>
 
+                        {{-- tombol pinjam --}}
                         @if($buku->stok > 0)
                             <a href="/anggota/pinjam/{{ $buku->id_buku }}"
-                               class="btn btn-danger">
-                                Pinjam Buku
+                               class="btn btn-danger btn-sm">
+                                Pinjam
                             </a>
+                        @else
+                            <button class="btn btn-secondary btn-sm" disabled>
+                                Habis
+                            </button>
                         @endif
 
                     </div>

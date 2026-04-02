@@ -1,4 +1,8 @@
-@extends('layouts.petugas')
+@extends('layouts.app')
+
+@section('sidebar')
+    @include('layouts.partials.sidebar-petugas')
+@endsection
 
 @section('content')
 
@@ -44,9 +48,17 @@
 
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Kategori</label>
-                    <input type="text" name="kategori"
-                           value="{{ $buku->kategori }}"
-                           class="form-control">
+
+                    <select name="kategori" class="form-control" required>
+                        <option value="">-- Pilih Kategori --</option>
+
+                        @foreach($kategori as $k)
+                            <option value="{{ $k }}" {{ $buku->kategori == $k ? 'selected' : '' }}>
+                                {{ $k }}
+                            </option>
+                        @endforeach
+
+                    </select>
                 </div>
 
                 <div class="col-md-6 mb-3">

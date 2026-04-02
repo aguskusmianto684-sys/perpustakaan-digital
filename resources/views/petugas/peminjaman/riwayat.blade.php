@@ -1,25 +1,31 @@
-@extends('layouts.petugas')
+@extends('layouts.app')
 
+@section('sidebar')
+    @include('layouts.partials.sidebar-petugas')
+@endsection
 @section('content')
 
 <div class="card">
     <div class="card-body">
 
+        {{-- judul --}}
         <h4 class="mb-3">
             <i class="ti ti-history"></i> Riwayat Peminjaman
         </h4>
 
         <div class="table-responsive">
 
-            <table class="table table-bordered table-hover align-middle datatable">
+            <table id="laporanTable" class="table table-bordered table-hover align-middle">
 
+                {{-- header --}}
                 <thead class="table-light">
                     <tr>
                         <th>No</th>
-                        <th>Nama Anggota</th>
-                        <th>Judul Buku</th>
-                        <th>Tanggal Pinjam</th>
-                        <th>Tanggal Kembali</th>
+                        <th>Anggota</th>
+                        <th>Buku</th>
+                        <th>Tgl Pinjam</th>
+                        <th>Tgl Kembali</th>
+                        <th>Denda</th>
                         <th>Status</th>
                     </tr>
                 </thead>
@@ -28,18 +34,85 @@
 
                     @foreach($data as $index => $d)
 
+                    @php
+                        // hitung denda
+                        $denda = 0;
+                        $terlambat = 0;
+
+                        if($d->tgl_dikembalikan && $d->tgl_dikembalikan > $d->tgl_kembali){
+                            $terlambat = \Carbon\Carbon::parse($d->tgl_kembali)
+                                ->diffInDays($d->tgl_dikembalikan);
+
+                            $denda = $terlambat * 1000;
+                        }
+                    @endphp
+
                     <tr>
 
+                        {{-- nomor --}}
                         <td>{{ $index + 1 }}</td>
-                        <td>{{ $d->nama }}</td>
-                        <td>{{ $d->judul }}</td>
-                        <td>{{ $d->tgl_pinjam }}</td>
-                        <td>{{ $d->tgl_kembali }}</td>
 
+                        {{-- anggota --}}
+                        <td>{{ $d->nama }}</td>
+
+                        {{-- buku --}}
+                        <td>{{ $d->judul }}</td>
+
+                        {{-- tanggal pinjam --}}
+                        <td>{{ $d->tgl_pinjam }}</td>
+
+                        {{-- tanggal kembali --}}
                         <td>
-                            <span class="badge bg-success">
-                                Dikembalikan
-                            </span>
+
+                            {{-- real --}}
+                            @if($d->tgl_dikembalikan)
+                                {{ $d->tgl_dikembalikan }}
+                            @endif
+
+                            {{-- deadline --}}
+                            <br>
+                            <small class="text-muted">
+                                {{ $d->tgl_kembali }}
+                            </small>
+
+                        </td>
+
+                        {{-- denda --}}
+                        <td>
+                            @if($denda > 0)
+                                <span class="text-danger">
+                                    Rp {{ number_format($denda) }}
+                                </span>
+                                <br>
+                                <small class="text-danger">
+                                    Terlambat {{ $terlambat }} hari
+                                </small>
+                            @else
+                                -
+                            @endif
+                        </td>
+
+                        {{-- status --}}
+                        <td>
+
+                            {{-- ditolak --}}
+                            @if($d->status == 'ditolak')
+                                <span class="badge bg-dark">Ditolak</span>
+
+                            {{-- terlambat --}}
+                            @elseif($denda > 0)
+                                <span class="badge bg-danger">Terlambat</span>
+
+                            {{-- dikembalikan normal --}}
+                            @elseif($d->status == 'dikembalikan')
+                                <span class="badge bg-success">Tepat Waktu</span>
+
+                            {{-- fallback --}}
+                            @else
+                                <span class="badge bg-secondary">Status tidak diketahui</span>
+
+                            @endif
+
                         </td>
 
                     </tr>
@@ -54,5 +127,7 @@
 
     </div>
 </div>
+
+
 
 @endsection

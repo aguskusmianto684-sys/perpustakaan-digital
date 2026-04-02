@@ -1,9 +1,20 @@
-@extends('layouts.kepala')
+@extends('layouts.app')
+
+@section('sidebar')
+    @include('layouts.partials.sidebar-kepala')
+@endsection
 
 @section('content')
+
+@if(session('success'))
+<div class="alert alert-success">
+    {{ session('success') }}
+</div>
+@endif
+
 @if(session('error'))
 <div class="alert alert-danger">
-{{ session('error') }}
+    {{ session('error') }}
 </div>
 @endif
 
@@ -36,31 +47,31 @@
 
 <div class="col-md-6 mb-3">
 <label>Email</label>
-<input type="email" name="email" class="form-control">
+<input type="email" name="email" class="form-control" required>
 </div>
 
 <div class="col-md-6 mb-3">
 <label>No HP</label>
-<input type="text" name="no_hp" class="form-control">
+<input type="text" name="no_hp" class="form-control" required>
 </div>
 
 <div class="col-md-6 mb-3">
 <label>Jenis Kelamin</label>
-<select name="jenis_kel" class="form-control">
-<option value="">-- Pilih Jenis Kelamin --</option>
-<option value="L">Laki-laki</option>
-<option value="P">Perempuan</option>
+<select name="jenis_kel" class="form-control" required>
+    <option value="">-- Pilih Jenis Kelamin --</option>
+    <option value="L">Laki-laki</option>
+    <option value="P">Perempuan</option>
 </select>
 </div>
 
 <div class="col-md-6 mb-3">
 <label>Tanggal Lahir</label>
-<input type="date" name="tgl_lahir" class="form-control">
+<input type="date" name="tgl_lahir" class="form-control" required>
 </div>
 
 <div class="col-md-12 mb-3">
 <label>Alamat</label>
-<textarea name="alamat" class="form-control"></textarea>
+<textarea name="alamat" class="form-control" required></textarea>
 </div>
 
 </div>

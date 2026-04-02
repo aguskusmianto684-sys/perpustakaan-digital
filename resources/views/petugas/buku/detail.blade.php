@@ -1,4 +1,8 @@
-@extends('layouts.petugas')
+@extends('layouts.app')
+
+@section('sidebar')
+    @include('layouts.partials.sidebar-petugas')
+@endsection
 
 @section('content')
 

@@ -1,4 +1,8 @@
-@extends('layouts.petugas')
+@extends('layouts.app')
+
+@section('sidebar')
+    @include('layouts.partials.sidebar-petugas')
+@endsection
 
 @section('content')
 
@@ -69,10 +73,17 @@
                                 <span class="badge bg-primary">Dipinjam</span>
 
                             @elseif($p->status == 'menunggu')
-                                <span class="badge bg-warning">Menunggu</span>
+                                <span class="badge bg-warning text-dark">Menunggu</span>
+
+                            @elseif($p->status == 'ditolak')
+                                <span class="badge bg-dark">Ditolak</span>
+
+                            @elseif($p->status == 'dikembalikan')
+                                <span class="badge bg-success">Dikembalikan</span>
 
                             @else
-                                <span class="badge bg-success">Dikembalikan</span>
+                                <span class="badge bg-secondary">Tidak diketahui</span>
+
                             @endif
 
                         </td>
@@ -82,16 +93,26 @@
                             @if($p->status == 'menunggu')
 
                                 <a href="/petugas/peminjaman/konfirmasi/{{ $p->id_peminjaman }}"
-                                   class="btn btn-primary btn-sm">
+                                class="btn btn-success btn-sm">
                                     Konfirmasi
+                                </a>
+
+                                <a href="/petugas/peminjaman/tolak/{{ $p->id_peminjaman }}"
+                                class="btn btn-dark btn-sm"
+                                onclick="return confirm('Yakin ingin menolak peminjaman ini?')">
+                                    Tolak
                                 </a>
 
                             @elseif($p->status == 'dipinjam')
 
                                 <a href="/petugas/peminjaman/kembalikan/{{ $p->id_peminjaman }}"
-                                   class="btn btn-success btn-sm">
-                                    Dikembalikan
+                                class="btn btn-warning btn-sm">
+                                    Kembalikan
                                 </a>
+
+                            @elseif($p->status == 'ditolak')
+
+                                <span class="badge bg-dark">Ditolak</span>
 
                             @else
 

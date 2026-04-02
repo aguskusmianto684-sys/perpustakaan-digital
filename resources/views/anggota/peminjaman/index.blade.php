@@ -1,9 +1,13 @@
-@extends('layouts.anggota')
+@extends('layouts.app')
 
+@section('sidebar')
+    @include('layouts.partials.sidebar-anggota')
+@endsection
 @section('content')
 
 <div class="container">
 
+    {{-- judul halaman --}}
     <h4 class="mb-4">
         <i class="ti ti-book"></i> Buku Saya
     </h4>
@@ -29,17 +33,20 @@
 
                 <tr>
 
+                    {{-- nomor --}}
                     <td>{{ $index + 1 }}</td>
 
+                    {{-- info buku --}}
                     <td>
                         <img src="{{ asset('uploads/buku/'.$d->gambar) }}" width="40">
                         {{ $d->judul }}
                     </td>
 
+                    {{-- tanggal --}}
                     <td>{{ $d->tgl_pinjam }}</td>
-
                     <td>{{ $d->tgl_kembali }}</td>
 
+                    {{-- denda --}}
                     <td>
                         @if($d->denda > 0)
                             <span class="text-danger">
@@ -50,16 +57,34 @@
                         @endif
                     </td>
 
+                    {{-- status peminjaman --}}
                     <td>
-                        @if($d->status == 'menunggu')
-                            <span class="badge bg-warning">Menunggu</span>
 
+                        {{-- terlambat --}}
+                        @if($d->status == 'dipinjam' && now()->gt($d->tgl_kembali))
+                            <span class="badge bg-danger">Terlambat</span>
+
+                        {{-- dipinjam --}}
                         @elseif($d->status == 'dipinjam')
                             <span class="badge bg-primary">Dipinjam</span>
 
-                        @else
+                        {{-- menunggu --}}
+                        @elseif($d->status == 'menunggu')
+                            <span class="badge bg-warning text-dark">Menunggu</span>
+
+                        {{-- ditolak --}}
+                        @elseif($d->status == 'ditolak')
+                            <span class="badge bg-dark">Ditolak</span>
+
+                        {{-- dikembalikan --}}
+                        @elseif($d->status == 'dikembalikan')
                             <span class="badge bg-success">Dikembalikan</span>
+
+                        @else
+                            <span class="badge bg-secondary">Tidak diketahui</span>
+
                         @endif
+
                     </td>
 
                 </tr>

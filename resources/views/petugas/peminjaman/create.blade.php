@@ -1,4 +1,8 @@
-@extends('layouts.petugas')
+@extends('layouts.app')
+
+@section('sidebar')
+    @include('layouts.partials.sidebar-petugas')
+@endsection
 
 @section('content')
 
@@ -42,6 +46,20 @@
                         @endforeach
 
                     </select>
+                </div>
+
+                {{-- TANGGAL PINJAM --}}
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Tanggal Pinjam</label>
+                    <input type="text" class="form-control"
+                        value="{{ now()->format('Y-m-d') }}" readonly>
+                </div>
+
+                {{-- TANGGAL KEMBALI --}}
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Tanggal Kembali</label>
+                    <input type="text" class="form-control"
+                        value="{{ now()->addDays(7)->format('Y-m-d') }}" readonly>
                 </div>
 
             </div>

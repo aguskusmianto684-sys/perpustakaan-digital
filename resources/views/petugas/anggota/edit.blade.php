@@ -1,4 +1,8 @@
-@extends('layouts.petugas')
+@extends('layouts.app')
+
+@section('sidebar')
+    @include('layouts.partials.sidebar-petugas')
+@endsection
 
 @section('content')
 
@@ -15,17 +19,30 @@
             <div class="row">
 
                 <div class="col-md-6 mb-3">
+                    <label>Username</label>
+                    <input type="text" name="username"
+                           value="{{ $anggota->username ?? '' }}"
+                           class="form-control" required>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label>Password (opsional)</label>
+                    <input type="password" name="password"
+                           class="form-control">
+                </div>
+
+                <div class="col-md-6 mb-3">
                     <label>Nama</label>
                     <input type="text" name="nama"
                            value="{{ $anggota->nama }}"
-                           class="form-control">
+                           class="form-control" required>
                 </div>
 
                 <div class="col-md-6 mb-3">
                     <label>Email</label>
                     <input type="email" name="email"
                            value="{{ $anggota->email }}"
-                           class="form-control">
+                           class="form-control" required>
                 </div>
 
                 <div class="col-md-6 mb-3">
@@ -38,15 +55,12 @@
                 <div class="col-md-6 mb-3">
                     <label>Jenis Kelamin</label>
                     <select name="jenis_kel" class="form-control">
-
                         <option value="L" {{ $anggota->jenis_kel == 'L' ? 'selected' : '' }}>
                             Laki-laki
                         </option>
-
                         <option value="P" {{ $anggota->jenis_kel == 'P' ? 'selected' : '' }}>
                             Perempuan
                         </option>
-
                     </select>
                 </div>
 

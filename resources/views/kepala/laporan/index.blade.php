@@ -1,4 +1,8 @@
-@extends('layouts.kepala')
+@extends('layouts.app')
+
+@section('sidebar')
+    @include('layouts.partials.sidebar-kepala')
+@endsection
 
 @section('content')
 
@@ -67,39 +71,5 @@
 
     </div>
 </div>
-
-{{-- DATATABLE --}}
-<script>
-$(document).ready(function () {
-
-    $('#laporanTable').DataTable({
-
-        dom: 'Bfrtip',
-
-        buttons: [
-            {
-                extend: 'copy',
-                text: 'Copy'
-            },
-            {
-                extend: 'excel',
-                text: 'Excel'
-            },
-            {
-                extend: 'pdf',
-                text: 'PDF',
-                title: 'Laporan Peminjaman Buku Perpustakaan Digital'
-            },
-            {
-                extend: 'print',
-                text: 'Print',
-                title: 'Laporan Peminjaman Buku Perpustakaan Digital'
-            }
-        ]
-
-    });
-
-});
-</script>
 
 @endsection
