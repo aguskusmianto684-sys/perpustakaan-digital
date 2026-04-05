@@ -17,19 +17,19 @@
 
             <tr>
                 <th width="200">Anggota</th>
-                <td>{{ $data->anggota }}</td>
+                <td>{{ $data->anggota->nama ?? '-' }}</td>
             </tr>
 
             <tr>
                 <th>Buku</th>
-                <td>{{ $data->buku }}</td>
+                <td>{{ $data->buku->judul ?? '-' }}</td>
             </tr>
 
             <tr>
                 <th>Petugas</th>
                 <td>
                     @if($data->petugas)
-                        {{ $data->petugas }}
+                        {{ $data->petugas->nama }}
                     @else
                         <span class="badge bg-secondary">
                             Belum dikonfirmasi
@@ -52,10 +52,13 @@
                 <th>Status</th>
                 <td>
                     @if($data->status == 'menunggu')
-                        <span class="badge bg-warning">Menunggu</span>
+                        <span class="badge bg-warning text-dark">Menunggu</span>
 
                     @elseif($data->status == 'dipinjam')
                         <span class="badge bg-primary">Dipinjam</span>
+
+                    @elseif($data->status == 'ditolak')
+                        <span class="badge bg-dark">Ditolak</span>
 
                     @else
                         <span class="badge bg-success">Dikembalikan</span>

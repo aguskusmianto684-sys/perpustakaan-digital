@@ -41,8 +41,8 @@
                     <tr>
 
                         <td>{{ $index + 1 }}</td>
-                        <td>{{ $p->nama }}</td>
-                        <td>{{ $p->judul }}</td>
+                        <td>{{ $p->anggota->nama ?? '-' }}</td>
+                        <td>{{ $p->buku->judul ?? '-' }}</td>
                         <td>{{ $p->tgl_pinjam }}</td>
                         <td>{{ $p->tgl_kembali }}</td>
 

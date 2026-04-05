@@ -35,18 +35,28 @@
 
                         <td>{{ $index + 1 }}</td>
 
-                        <td>{{ $d->anggota }}</td>
+                        {{-- ✅ RELASI --}}
+                        <td>{{ $d->anggota->nama ?? '-' }}</td>
+                        <td>{{ $d->buku->judul ?? '-' }}</td>
+                        <td>{{ $d->petugas->nama ?? '-' }}</td>
 
-                        <td>{{ $d->buku }}</td>
-
-                        <td>{{ $d->petugas }}</td>
-
+                        {{-- status --}}
                         <td>
-                            <span class="badge bg-success">
-                                {{ $d->status }}
-                            </span>
+                            @if($d->status == 'menunggu')
+                                <span class="badge bg-warning text-dark">Menunggu</span>
+
+                            @elseif($d->status == 'dipinjam')
+                                <span class="badge bg-primary">Dipinjam</span>
+
+                            @elseif($d->status == 'ditolak')
+                                <span class="badge bg-dark">Ditolak</span>
+
+                            @else
+                                <span class="badge bg-success">Dikembalikan</span>
+                            @endif
                         </td>
 
+                        {{-- denda --}}
                         <td>
                             @if($d->denda > 0)
                                 <span class="text-danger">
@@ -57,6 +67,7 @@
                             @endif
                         </td>
 
+                        {{-- tanggal --}}
                         <td>{{ $d->tgl_pinjam }}</td>
 
                     </tr>

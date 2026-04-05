@@ -34,12 +34,9 @@
                     <tr>
 
                         <td>{{ $index + 1 }}</td>
-
-                        <td>{{ $p->anggota }}</td>
-
-                        <td>{{ $p->buku }}</td>
-
-                        <td>{{ $p->petugas }}</td>
+                        <td>{{ $p->anggota->nama ?? '-' }}</td>
+                        <td>{{ $p->buku->judul ?? '-' }}</td>
+                        <td>{{ $p->petugas->nama ?? '-' }}</td>
 
                         <td>
                             @if($p->status == 'dipinjam')

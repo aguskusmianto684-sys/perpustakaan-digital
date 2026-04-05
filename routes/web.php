@@ -1,17 +1,16 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\Anggota\BukuAnggotaController;
+use App\Http\Controllers\Kepala\DashboardController as KepalaDashboardController;
+use App\Http\Controllers\Petugas\DashboardController as PetugasDashboardController;
+use App\Http\Controllers\Anggota\DashboardController as AnggotaDashboardController;
 use App\Http\Controllers\Auth\LoginController;
-
-use App\Http\Controllers\Petugas\BukuController;
-use App\Http\Controllers\Petugas\AnggotaController;
-use App\Http\Controllers\Petugas\PeminjamanController;
-
 use App\Http\Controllers\Kepala\PeminjamanController as KepalaPeminjamanController;
 use App\Http\Controllers\Kepala\PetugasController;
-
-use App\Http\Controllers\Anggota\BukuAnggotaController;
+use App\Http\Controllers\Petugas\AnggotaController;
+use App\Http\Controllers\Petugas\BukuController;
+use App\Http\Controllers\Petugas\PeminjamanController;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
@@ -47,6 +46,7 @@ Route::middleware(['auth'])->group(function () {
         return view('petugas.dashboard');
     });
 
+    Route::get('/petugas/dashboard', [PetugasDashboardController::class, 'index']);
     Route::get('/petugas/buku', [BukuController::class, 'index']);
     Route::get('/petugas/buku/create', [BukuController::class, 'create']);
     Route::post('/petugas/buku/store', [BukuController::class, 'store']);
@@ -81,6 +81,8 @@ Route::middleware(['auth'])->group(function () {
         return view('anggota.dashboard');
     });
 
+
+    Route::get('/anggota/dashboard', [AnggotaDashboardController::class, 'index']);
     Route::get('/anggota/buku', [BukuAnggotaController::class, 'index']);
     Route::get('/anggota/buku/detail/{id}', [BukuAnggotaController::class, 'detail']);
     Route::get('/anggota/pinjam/{id}', [BukuAnggotaController::class, 'formPinjam']);
@@ -97,6 +99,9 @@ Route::middleware(['auth'])->group(function () {
         return view('kepala.dashboard');
     });
 
+
+
+    Route::get('/kepala/dashboard', [KepalaDashboardController::class, 'index']);
     Route::get('/kepala/petugas', [PetugasController::class, 'index']);
     Route::get('/kepala/petugas/create', [PetugasController::class, 'create']);
     Route::post('/kepala/petugas/store', [PetugasController::class, 'store']);
@@ -110,7 +115,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/kepala/peminjaman', [KepalaPeminjamanController::class, 'index']);
     Route::get('/kepala/peminjaman/detail/{id}', [KepalaPeminjamanController::class, 'detail']);
     Route::get('/kepala/laporan', [KepalaPeminjamanController::class, 'laporan']);
-
 });
 
 Route::fallback(function () {

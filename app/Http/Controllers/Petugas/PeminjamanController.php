@@ -35,14 +35,12 @@ class PeminjamanController extends Controller
      */
     public function index()
     {
-        // Ambil data peminjaman dengan join relasi
-        $peminjaman = Peminjaman::join('anggota', 'peminjaman.id_anggota', '=', 'anggota.id_anggota')
-            ->join('buku', 'peminjaman.id_buku', '=', 'buku.id_buku')
-            ->select('peminjaman.*', 'anggota.nama', 'buku.judul')
-            ->latest('peminjaman.tgl_pinjam')
+        // Ambil data peminjaman pakai relasi
+        $peminjaman = Peminjaman::with(['anggota', 'buku'])
+            ->latest('tgl_pinjam')
             ->get();
 
-        // Tampilkan data ke halaman peminjaman
+        // Tampilkan ke view
         return view('petugas.peminjaman.index', compact('peminjaman'));
     }
 
@@ -66,15 +64,14 @@ class PeminjamanController extends Controller
      */
     public function store(Request $request)
     {
-        // Ambil data petugas berdasarkan user login
-        $petugas = Petugas::where('id_user', Auth::user()->id_user)->first();
+        // Ambil petugas dari relasi user login
+        $petugas = Auth::user()->petugas;
 
-        // Cek apakah data petugas ditemukan
         if (!$petugas) {
             return back()->with('error', 'Petugas tidak ditemukan');
         }
 
-        // Simpan data peminjaman ke database
+        // Simpan peminjaman
         Peminjaman::create([
             'id_anggota' => $request->id_anggota,
             'id_buku' => $request->id_buku,
@@ -84,10 +81,9 @@ class PeminjamanController extends Controller
             'status' => 'dipinjam'
         ]);
 
-        // Kurangi stok buku setelah dipinjam
+        // Kurangi stok buku
         Buku::where('id_buku', $request->id_buku)->decrement('stok');
 
-        // Redirect ke halaman peminjaman sukses
         return redirect('/petugas/peminjaman')
             ->with('success', 'Peminjaman berhasil ditambahkan');
     }
@@ -180,12 +176,10 @@ class PeminjamanController extends Controller
      */
     public function riwayat()
     {
-        // Ambil data riwayat peminjaman lengkap
-        $data = Peminjaman::join('anggota', 'peminjaman.id_anggota', '=', 'anggota.id_anggota')
-            ->join('buku', 'peminjaman.id_buku', '=', 'buku.id_buku')
-            ->whereIn('peminjaman.status', ['dikembalikan', 'ditolak']) // 🔥 FIX
-            ->select('peminjaman.*', 'anggota.nama', 'buku.judul')
-            ->orderBy('peminjaman.tgl_pinjam', 'desc')
+        // Ambil data riwayat pakai relasi
+        $data = Peminjaman::with(['anggota', 'buku'])
+            ->whereIn('status', ['dikembalikan', 'ditolak'])
+            ->orderBy('tgl_pinjam', 'desc')
             ->get();
 
         return view('petugas.peminjaman.riwayat', compact('data'));

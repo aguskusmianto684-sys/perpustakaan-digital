@@ -193,18 +193,16 @@ class BukuAnggotaController extends Controller
      */
     public function riwayat()
     {
-        // Ambil data anggota dari user login
-        $anggota = Anggota::where('id_user', Auth::user()->id_user)->first();
+        // Ambil anggota dari user login (pakai relasi)
+        $anggota = Auth::user()->anggota;
 
-        // Ambil data riwayat peminjaman dengan join
-        $data = Peminjaman::join('buku', 'peminjaman.id_buku', '=', 'buku.id_buku')
-        ->where('peminjaman.id_anggota', $anggota->id_anggota)
-        ->whereIn('peminjaman.status', ['dikembalikan', 'ditolak'])
-        ->select('peminjaman.*', 'buku.judul', 'buku.gambar')
-        ->orderBy('peminjaman.tgl_pinjam', 'desc')
-        ->get();
+        // Ambil riwayat peminjaman pakai relasi
+        $data = Peminjaman::with('buku')
+            ->where('id_anggota', $anggota->id_anggota)
+            ->whereIn('status', ['dikembalikan', 'ditolak'])
+            ->orderBy('tgl_pinjam', 'desc')
+            ->get();
 
-        // Tampilkan data riwayat ke halaman view
         return view('anggota.riwayat.index', compact('data'));
     }
 }

@@ -3,13 +3,13 @@
 @section('sidebar')
     @include('layouts.partials.sidebar-anggota')
 @endsection
-
 @section('content')
 
 <div class="container">
 
+    {{-- judul halaman --}}
     <h4 class="mb-4">
-        <i class="ti ti-history"></i> Riwayat Peminjaman
+        <i class="ti ti-book"></i> Buku Saya
     </h4>
 
     <div class="table-responsive">
@@ -22,6 +22,7 @@
                     <th>Buku</th>
                     <th>Tanggal Pinjam</th>
                     <th>Tanggal Kembali</th>
+                    <th>Denda</th>
                     <th>Status</th>
                 </tr>
             </thead>
@@ -35,42 +36,32 @@
                     {{-- nomor --}}
                     <td>{{ $index + 1 }}</td>
 
-                    {{-- buku --}}
+                    {{-- ✅ RELASI BUKU --}}
                     <td>
-                        <img src="{{ asset('uploads/buku/'.$d->gambar) }}" width="40">
-                        {{ $d->judul }}
+                        <img src="{{ asset('uploads/buku/'.($d->buku->gambar ?? 'default.png')) }}" width="40">
+                        {{ $d->buku->judul ?? '-' }}
                     </td>
 
-                    {{-- tanggal pinjam --}}
+                    {{-- tanggal --}}
                     <td>{{ $d->tgl_pinjam }}</td>
+                    <td>{{ $d->tgl_kembali }}</td>
 
-                    {{-- tanggal kembali --}}
+                    {{-- denda --}}
                     <td>
-
-                        {{-- tanggal real --}}
-                        @if($d->tgl_dikembalikan)
-                            {{ $d->tgl_dikembalikan }}
+                        @if($d->denda > 0)
+                            <span class="text-danger">
+                                Rp {{ number_format($d->denda) }}
+                            </span>
                         @else
                             -
                         @endif
-
-                        {{-- deadline --}}
-                        <br>
-                        <small class="text-muted">
-                            Deadline: {{ $d->tgl_kembali }}
-                        </small>
-
                     </td>
 
                     {{-- status --}}
                     <td>
 
-                        {{-- ditolak --}}
-                        @if($d->status == 'ditolak')
-                            <span class="badge bg-dark">Ditolak</span>
-
                         {{-- terlambat --}}
-                        @elseif($d->status == 'dipinjam' && now()->gt($d->tgl_kembali))
+                        @if($d->status == 'dipinjam' && now()->gt($d->tgl_kembali))
                             <span class="badge bg-danger">Terlambat</span>
 
                         {{-- dipinjam --}}
@@ -80,6 +71,10 @@
                         {{-- menunggu --}}
                         @elseif($d->status == 'menunggu')
                             <span class="badge bg-warning text-dark">Menunggu</span>
+
+                        {{-- ditolak --}}
+                        @elseif($d->status == 'ditolak')
+                            <span class="badge bg-dark">Ditolak</span>
 
                         {{-- dikembalikan --}}
                         @elseif($d->status == 'dikembalikan')
@@ -92,6 +87,8 @@
                         @endif
 
                     </td>
+
+                </tr>
 
                 @endforeach
 

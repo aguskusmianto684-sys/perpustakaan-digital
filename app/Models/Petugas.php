@@ -12,7 +12,6 @@ class Petugas extends Model
 
     public $timestamps = false;
 
-    // kolom yang boleh diisi
     protected $fillable = [
         'id_user',
         'nama',
@@ -23,4 +22,11 @@ class Petugas extends Model
         'tgl_lahir',
         'status'
     ];
+
+    // Relasi ke user
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'id_user', 'id_user');
+    }
+    
 }

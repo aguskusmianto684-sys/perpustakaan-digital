@@ -18,7 +18,7 @@
 
             {{-- gambar buku --}}
             <div class="col-md-4">
-                <img src="{{ asset('uploads/buku/'.$buku->gambar) }}"
+                <img src="{{ asset('uploads/buku/'.($buku->gambar ?? 'default.png')) }}"
                      class="img-fluid rounded-start w-100"
                      style="height: 100%; object-fit: cover;">
             </div>
@@ -33,15 +33,15 @@
 
                     {{-- info buku --}}
                     <p class="text-muted mb-3 small">
-                        <b>Penulis:</b> {{ $buku->penulis }} <br>
-                        <b>Penerbit:</b> {{ $buku->penerbit }} <br>
-                        <b>Tahun:</b> {{ $buku->tahun_terbit }} <br>
-                        <b>Kategori:</b> {{ \Illuminate\Support\Str::limit($buku->kategori, 30) }}
+                        <b>Penulis:</b> {{ $buku->penulis ?? '-' }} <br>
+                        <b>Penerbit:</b> {{ $buku->penerbit ?? '-' }} <br>
+                        <b>Tahun:</b> {{ $buku->tahun_terbit ?? '-' }} <br>
+                        <b>Kategori:</b> {{ \Illuminate\Support\Str::limit($buku->kategori ?? '-', 30) }}
                     </p>
 
                     {{-- deskripsi buku --}}
                     <p class="mb-3">
-                        {{ $buku->deskripsi }}
+                        {{ $buku->deskripsi ?? '-' }}
                     </p>
 
                     {{-- status stok --}}
@@ -51,7 +51,7 @@
                         </span>
                     @else
                         <span class="badge bg-danger mb-3">
-                            Habis
+                            Stok Habis
                         </span>
                     @endif
 
@@ -71,7 +71,7 @@
                             </a>
                         @else
                             <button class="btn btn-secondary btn-sm" disabled>
-                                Habis
+                                Tidak Tersedia
                             </button>
                         @endif
 

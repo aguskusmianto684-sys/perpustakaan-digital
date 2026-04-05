@@ -98,8 +98,8 @@
 
                         {{-- buku --}}
                         <td>
-                            <img src="{{ asset('uploads/buku/'.$p->gambar) }}" width="40">
-                            {{ $p->judul }}
+                            <img src="{{ asset('uploads/buku/'.($p->buku->gambar ?? 'default.png')) }}" width="40">
+                            {{ $p->buku->judul ?? '-' }}
                         </td>
 
                         {{-- tanggal pinjam --}}

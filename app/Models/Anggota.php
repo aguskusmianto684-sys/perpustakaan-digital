@@ -12,9 +12,8 @@ class Anggota extends Model
 
     public $timestamps = false;
 
-    // Kolom yang boleh diisi
     protected $fillable = [
-        'id_user', // WAJIB TAMBAH INI
+        'id_user',
         'nama',
         'alamat',
         'email',
@@ -22,4 +21,10 @@ class Anggota extends Model
         'jenis_kel',
         'tgl_lahir'
     ];
+
+    // Relasi ke user
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'id_user', 'id_user');
+    }
 }

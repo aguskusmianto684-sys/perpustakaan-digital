@@ -82,11 +82,10 @@ class AnggotaController extends Controller
     {
         $anggota = Anggota::find($id);
 
-        $peminjaman = Peminjaman::join('buku', 'peminjaman.id_buku', '=', 'buku.id_buku')
-            ->where('peminjaman.id_anggota', $id)
-            ->where('peminjaman.status', 'dipinjam')
-            ->select('peminjaman.*', 'buku.judul', 'buku.gambar')
-            ->orderBy('peminjaman.tgl_pinjam', 'desc')
+        $peminjaman = Peminjaman::with('buku')
+            ->where('id_anggota', $id)
+            ->where('status', 'dipinjam')
+            ->orderBy('tgl_pinjam', 'desc')
             ->get();
 
         return view('petugas.anggota.detail', compact('anggota', 'peminjaman'));

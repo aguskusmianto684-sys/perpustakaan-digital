@@ -35,7 +35,6 @@
                     @foreach($data as $index => $d)
 
                     @php
-                        // hitung denda
                         $denda = 0;
                         $terlambat = 0;
 
@@ -52,29 +51,20 @@
                         {{-- nomor --}}
                         <td>{{ $index + 1 }}</td>
 
-                        {{-- anggota --}}
-                        <td>{{ $d->nama }}</td>
-
-                        {{-- buku --}}
-                        <td>{{ $d->judul }}</td>
+                        {{-- ✅ RELASI --}}
+                        <td>{{ $d->anggota->nama ?? '-' }}</td>
+                        <td>{{ $d->buku->judul ?? '-' }}</td>
 
                         {{-- tanggal pinjam --}}
                         <td>{{ $d->tgl_pinjam }}</td>
 
                         {{-- tanggal kembali --}}
                         <td>
-
-                            {{-- real --}}
-                            @if($d->tgl_dikembalikan)
-                                {{ $d->tgl_dikembalikan }}
-                            @endif
-
-                            {{-- deadline --}}
+                            {{ $d->tgl_dikembalikan ?? '-' }}
                             <br>
                             <small class="text-muted">
                                 {{ $d->tgl_kembali }}
                             </small>
-
                         </td>
 
                         {{-- denda --}}
@@ -95,19 +85,15 @@
                         {{-- status --}}
                         <td>
 
-                            {{-- ditolak --}}
                             @if($d->status == 'ditolak')
                                 <span class="badge bg-dark">Ditolak</span>
 
-                            {{-- terlambat --}}
                             @elseif($denda > 0)
                                 <span class="badge bg-danger">Terlambat</span>
 
-                            {{-- dikembalikan normal --}}
                             @elseif($d->status == 'dikembalikan')
                                 <span class="badge bg-success">Tepat Waktu</span>
 
-                            {{-- fallback --}}
                             @else
                                 <span class="badge bg-secondary">Status tidak diketahui</span>
 
@@ -127,7 +113,5 @@
 
     </div>
 </div>
-
-
 
 @endsection
