@@ -188,6 +188,27 @@ class BukuAnggotaController extends Controller
         return view('anggota.peminjaman.index', compact('data'));
     }
 
+    public function ajukanPengembalian($id)
+    {
+        $pinjam = \App\Models\Peminjaman::find($id);
+
+        if (!$pinjam) {
+            return back()->with('error', 'Data tidak ditemukan');
+        }
+
+        // ❌ jangan bisa ajukan kalau bukan dipinjam
+        if ($pinjam->status != 'dipinjam') {
+            return back()->with('error', 'Tidak bisa ajukan pengembalian');
+        }
+
+        // 🔥 ubah status
+        $pinjam->update([
+            'status' => 'menunggu pengembalian'
+        ]);
+
+        return back()->with('success', 'Pengembalian berhasil diajukan, tunggu konfirmasi petugas');
+    }
+
     /**
      * Menampilkan semua riwayat peminjaman buku
      */

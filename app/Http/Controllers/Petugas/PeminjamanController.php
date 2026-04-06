@@ -196,6 +196,27 @@ class PeminjamanController extends Controller
         return back()->with('success', 'Buku berhasil dikembalikan');
     }
 
+    public function tolakPengembalian($id)
+    {
+        $pinjam = Peminjaman::find($id);
+
+        if (!$pinjam) {
+            return back()->with('error', 'Data tidak ditemukan');
+        }
+
+        // hanya bisa ditolak kalau statusnya menunggu pengembalian
+        if ($pinjam->status != 'menunggu pengembalian') {
+            return back()->with('error', 'Tidak bisa menolak');
+        }
+
+        // kembalikan status ke dipinjam
+        $pinjam->update([
+            'status' => 'dipinjam'
+        ]);
+
+        return back()->with('success', 'Pengembalian ditolak');
+    }
+
     /**
      * Menampilkan riwayat peminjaman sudah dikembalikan
      */

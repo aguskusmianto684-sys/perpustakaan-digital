@@ -76,6 +76,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/petugas/anggota/edit/{id}', [AnggotaController::class, 'edit']);
     Route::post('/petugas/anggota/update/{id}', [AnggotaController::class, 'update']);
     Route::get('/petugas/anggota/delete/{id}', [AnggotaController::class, 'delete']);
+    Route::get('/petugas/peminjaman/tolak-pengembalian/{id}', [PeminjamanController::class, 'tolakPengembalian']);
 
 
     /*
@@ -94,6 +95,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/anggota/pinjam/store', [BukuAnggotaController::class, 'storePinjam']);
     Route::get('/anggota/peminjaman', [BukuAnggotaController::class, 'peminjamanSaya']);
     Route::get('/anggota/riwayat', [BukuAnggotaController::class, 'riwayat']);
+    Route::get('/anggota/pengembalian/{id}', [BukuAnggotaController::class, 'ajukanPengembalian']);
 
 
     /*

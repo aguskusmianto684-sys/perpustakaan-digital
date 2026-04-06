@@ -8,7 +8,6 @@ use App\Models\Peminjaman;
 use App\Models\Buku;
 use App\Models\Anggota;
 
-
 class DashboardController extends Controller
 {
     public function index()
@@ -31,6 +30,9 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
+        // 🔥 NOTIF BARU (PENGAJUAN PENGEMBALIAN)
+        $pengajuanPengembalian = Peminjaman::where('status', 'menunggu pengembalian')->count();
+
         return view('petugas.dashboard', compact(
             'totalBuku',
             'totalAnggota',
@@ -38,9 +40,11 @@ class DashboardController extends Controller
             'menunggu',
             'terlambat',
             'hariIni',
-            'latest'
+            'latest',
+            'pengajuanPengembalian' // 🔥 TAMBAH INI
         ));
     }
+
     public function profile()
     {
         $petugas = Auth::user()->petugas;

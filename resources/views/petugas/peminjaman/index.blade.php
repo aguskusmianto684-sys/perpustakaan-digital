@@ -30,7 +30,7 @@
                         <th>Tanggal Kembali</th>
                         <th>Denda</th>
                         <th>Status</th>
-                        <th width="150">Aksi</th>
+                        <th width="170">Aksi</th>
                     </tr>
                 </thead>
 
@@ -47,23 +47,19 @@
                         <td>{{ $p->tgl_kembali }}</td>
 
                         <td>
-
                             @php
                                 $denda = 0;
 
                                 if ($p->status == 'dipinjam' && now()->gt($p->tgl_kembali)) {
-
-                                    $hari = \Carbon\Carbon::parse($p->tgl_kembali)
-                                            ->diffInDays(now());
-
+                                    $hari = \Carbon\Carbon::parse($p->tgl_kembali)->diffInDays(now());
                                     $denda = $hari * 1000;
                                 }
                             @endphp
 
                             Rp {{ number_format($denda) }}
-
                         </td>
 
+                        {{-- 🔥 STATUS --}}
                         <td>
 
                             @if($p->status == 'dipinjam' && now()->gt($p->tgl_kembali))
@@ -75,6 +71,9 @@
                             @elseif($p->status == 'menunggu')
                                 <span class="badge bg-warning text-dark">Menunggu</span>
 
+                            @elseif($p->status == 'menunggu pengembalian') {{-- 🔥 TAMBAH --}}
+                                <span class="badge bg-info">Menunggu Pengembalian</span>
+
                             @elseif($p->status == 'ditolak')
                                 <span class="badge bg-dark">Ditolak</span>
 
@@ -83,13 +82,14 @@
 
                             @else
                                 <span class="badge bg-secondary">Tidak diketahui</span>
-
                             @endif
 
                         </td>
 
+                        {{-- 🔥 AKSI --}}
                         <td>
 
+                            {{-- KONFIRMASI PEMINJAMAN --}}
                             @if($p->status == 'menunggu')
 
                                 <a href="/petugas/peminjaman/konfirmasi/{{ $p->id_peminjaman }}"
@@ -103,17 +103,32 @@
                                     Tolak
                                 </a>
 
-                            @elseif($p->status == 'dipinjam')
+                            {{-- 🔥 KONFIRMASI / TOLAK PENGEMBALIAN --}}
+                            @elseif($p->status == 'menunggu pengembalian')
 
                                 <a href="/petugas/peminjaman/kembalikan/{{ $p->id_peminjaman }}"
-                                class="btn btn-warning btn-sm">
-                                    Kembalikan
+                                class="btn btn-success btn-sm"
+                                onclick="return confirm('Konfirmasi pengembalian buku ini?')">
+                                    Konfirmasi
                                 </a>
 
+                                <a href="/petugas/peminjaman/tolak-pengembalian/{{ $p->id_peminjaman }}"
+                                class="btn btn-danger btn-sm"
+                                onclick="return confirm('Tolak pengembalian buku ini?')">
+                                    Tolak
+                                </a>
+
+                            {{-- MASIH DIPINJAM --}}
+                            @elseif($p->status == 'dipinjam')
+
+                                <span class="text-muted">Dipinjam</span>
+
+                            {{-- DITOLAK --}}
                             @elseif($p->status == 'ditolak')
 
                                 <span class="badge bg-dark">Ditolak</span>
 
+                            {{-- SELESAI --}}
                             @else
 
                                 <span class="badge bg-success">Selesai</span>

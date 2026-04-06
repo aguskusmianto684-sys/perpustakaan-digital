@@ -13,6 +13,18 @@
         Dashboard Kepala Perpustakaan
     </h4>
 
+    {{-- 🔥 NOTIFIKASI PENGEMBALIAN --}}
+    @if(isset($pengajuanPengembalian) && $pengajuanPengembalian > 0)
+        <div class="alert alert-info d-flex justify-content-between align-items-center">
+            <div>
+                🔔 Ada <strong>{{ $pengajuanPengembalian }}</strong> pengajuan pengembalian menunggu konfirmasi
+            </div>
+            <a href="/petugas/peminjaman" class="btn btn-sm btn-primary">
+                Lihat
+            </a>
+        </div>
+    @endif
+
     {{-- ================= CARD ================= --}}
     <div class="row">
 
