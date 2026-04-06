@@ -10,7 +10,7 @@
 
     {{-- ================= HEADER ================= --}}
     <h4 class="mb-4 fw-semibold">
-        👋 Selamat Datang, {{ Auth::user()->username }}
+        Selamat Datang, {{ Auth::user()->username }}
     </h4>
 
     {{-- ================= CARD STATISTIK ================= --}}
@@ -88,7 +88,28 @@
     </a>
     @endif
 
-    {{-- ================= QUICK ACTION ================= --}}
+    {{-- ================= SYARAT PEMINJAMAN ================= --}}
+    <div class="card mt-4 border-0 shadow"
+         style="background: linear-gradient(45deg,#6c757d,#495057); color:white;">
+
+        <div class="card-body">
+
+            <h5 class="mb-3">
+                ℹ️ Informasi Aturan Peminjaman
+            </h5>
+
+            <ol class="mb-0">
+                <li>Waktu peminjaman maksimal <b>7 hari</b></li>
+                <li>Maksimal meminjam <b>3 buku</b></li>
+                <li>Denda keterlambatan <b>Rp 1.000 / hari</b></li>
+                <li>Wajib mengembalikan tepat waktu</li>
+                <li>Jika terlambat, wajib membayar denda</li>
+            </ol>
+
+        </div>
+    </div>
+
+        {{-- ================= QUICK ACTION ================= --}}
     {{-- tombol cepat --}}
     <div class="mb-3">
         <a href="/anggota/buku" class="btn btn-primary">
@@ -100,7 +121,7 @@
         </a>
     </div>
 
-    {{-- ================= BUKU TERAKHIR ================= --}}
+        {{-- ================= BUKU TERAKHIR ================= --}}
     <div class="card shadow border-0 mt-3">
         <div class="card-body">
 
@@ -121,27 +142,6 @@
             @else
                 <p class="text-muted">Belum ada peminjaman</p>
             @endif
-
-        </div>
-    </div>
-
-    {{-- ================= SYARAT PEMINJAMAN ================= --}}
-    <div class="card mt-4 border-0 shadow"
-         style="background: linear-gradient(45deg,#6c757d,#495057); color:white;">
-
-        <div class="card-body">
-
-            <h5 class="mb-3">
-                ℹ️ Informasi Aturan Peminjaman
-            </h5>
-
-            <ol class="mb-0">
-                <li>Waktu peminjaman maksimal <b>7 hari</b></li>
-                <li>Maksimal meminjam <b>3 buku</b></li>
-                <li>Denda keterlambatan <b>Rp 1.000 / hari</b></li>
-                <li>Wajib mengembalikan tepat waktu</li>
-                <li>Jika terlambat, wajib membayar denda</li>
-            </ol>
 
         </div>
     </div>

@@ -46,6 +46,11 @@ Route::middleware(['auth'])->group(function () {
         return view('petugas.dashboard');
     });
 
+    // 🔥 PROFILE
+    Route::get('/anggota/profile', [AnggotaDashboardController::class, 'profile']);
+    Route::get('/petugas/profile', [PetugasDashboardController::class, 'profile']);
+    Route::get('/kepala/profile', [KepalaDashboardController::class, 'profile']);
+
     Route::get('/petugas/dashboard', [PetugasDashboardController::class, 'index']);
     Route::get('/petugas/buku', [BukuController::class, 'index']);
     Route::get('/petugas/buku/create', [BukuController::class, 'create']);

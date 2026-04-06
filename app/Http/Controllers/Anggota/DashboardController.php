@@ -18,18 +18,29 @@ class DashboardController extends Controller
 
         $total = $data->count();
 
-        $dipinjam = $data->where('status','dipinjam')->count();
+        $dipinjam = $data->where('status', 'dipinjam')->count();
 
-        $kembali = $data->where('status','dikembalikan')->count();
+        $kembali = $data->where('status', 'dikembalikan')->count();
 
-        $terlambat = $data->filter(function($d){
+        $terlambat = $data->filter(function ($d) {
             return $d->status == 'dipinjam' && now()->gt($d->tgl_kembali);
         })->count();
 
         $last = $data->sortByDesc('tgl_pinjam')->first();
 
         return view('anggota.dashboard', compact(
-            'total','dipinjam','kembali','terlambat','last'
+            'total',
+            'dipinjam',
+            'kembali',
+            'terlambat',
+            'last'
         ));
+    }
+
+    public function profile()
+    {
+        $anggota = Auth::user()->anggota;
+
+        return view('anggota.profile', compact('anggota'));
     }
 }

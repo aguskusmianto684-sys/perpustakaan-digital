@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Kepala;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use App\Models\Peminjaman;
 use App\Models\Buku;
 use App\Models\Anggota;
@@ -27,7 +28,7 @@ class DashboardController extends Controller
             ->get();
 
         // aktivitas terbaru
-        $latest = Peminjaman::with(['anggota','buku','petugas'])
+        $latest = Peminjaman::with(['anggota', 'buku', 'petugas'])
             ->latest('tgl_pinjam')
             ->take(5)
             ->get();
@@ -40,5 +41,11 @@ class DashboardController extends Controller
             'populer',
             'latest'
         ));
+    }
+    public function profile()
+    {
+        $kepala = Auth::user()->kepala;
+
+        return view('kepala.profile', compact('kepala'));
     }
 }

@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Petugas;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use App\Models\Peminjaman;
 use App\Models\Buku;
 use App\Models\Anggota;
+
 
 class DashboardController extends Controller
 {
@@ -14,17 +16,17 @@ class DashboardController extends Controller
         $totalBuku = Buku::count();
         $totalAnggota = Anggota::count();
 
-        $peminjamanAktif = Peminjaman::where('status','dipinjam')->count();
+        $peminjamanAktif = Peminjaman::where('status', 'dipinjam')->count();
 
-        $menunggu = Peminjaman::where('status','menunggu')->count();
+        $menunggu = Peminjaman::where('status', 'menunggu')->count();
 
-        $terlambat = Peminjaman::where('status','dipinjam')
-            ->where('tgl_kembali','<',now())
+        $terlambat = Peminjaman::where('status', 'dipinjam')
+            ->where('tgl_kembali', '<', now())
             ->count();
 
         $hariIni = Peminjaman::whereDate('tgl_pinjam', today())->count();
 
-        $latest = Peminjaman::with(['anggota','buku'])
+        $latest = Peminjaman::with(['anggota', 'buku'])
             ->latest('tgl_pinjam')
             ->take(5)
             ->get();
@@ -38,5 +40,11 @@ class DashboardController extends Controller
             'hariIni',
             'latest'
         ));
+    }
+    public function profile()
+    {
+        $petugas = Auth::user()->petugas;
+
+        return view('petugas.profile', compact('petugas'));
     }
 }
