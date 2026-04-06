@@ -11,6 +11,8 @@ use App\Models\Peminjaman;
 use App\Models\Buku;
 use App\Models\Anggota;
 use App\Models\Petugas;
+use App\Models\Pengembalian;
+use Carbon\Carbon;
 
 class PeminjamanController extends Controller
 {
@@ -148,27 +150,50 @@ class PeminjamanController extends Controller
     /**
      * Proses pengembalian buku oleh anggota
      */
+
     public function kembalikan($id)
     {
-        // Ambil data peminjaman berdasarkan id
         $pinjam = Peminjaman::find($id);
 
-        // Cek apakah data peminjaman tersedia
         if (!$pinjam) {
             return back()->with('error', 'Data tidak ditemukan');
         }
 
-        // Tambah kembali stok buku tersedia
+        // ❌ cegah double return
+        if ($pinjam->status == 'dikembalikan') {
+            return back()->with('error', 'Buku sudah dikembalikan');
+        }
+
+        // tambah stok buku
         Buku::where('id_buku', $pinjam->id_buku)->increment('stok');
 
-        // Update status dan tanggal pengembalian buku
+        $today = Carbon::now();
+        $denda = 0;
+        $statusPengembalian = 'tepat waktu';
+
+        // 🔥 hitung denda
+        if ($today->gt($pinjam->tgl_kembali)) {
+            $hariTerlambat = Carbon::parse($pinjam->tgl_kembali)->diffInDays($today);
+            $denda = $hariTerlambat * 1000;
+            $statusPengembalian = 'terlambat';
+        }
+
+        // update peminjaman
         $pinjam->update([
             'status' => 'dikembalikan',
-            'tgl_dikembalikan' => now()
+            'tgl_dikembalikan' => $today,
+            'denda' => $denda
         ]);
 
-        // Kembali ke halaman dengan pesan sukses
-        return back()->with('success', 'Buku dikembalikan');
+        // 🔥 WAJIB: insert ke tabel pengembalian
+        Pengembalian::create([
+            'id_peminjaman' => $pinjam->id_peminjaman,
+            'tgl_pengembalian' => $today,
+            'denda' => $denda,
+            'status' => $statusPengembalian
+        ]);
+
+        return back()->with('success', 'Buku berhasil dikembalikan');
     }
 
     /**

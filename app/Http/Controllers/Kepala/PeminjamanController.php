@@ -51,7 +51,12 @@ class PeminjamanController extends Controller
      */
     public function laporan()
     {
-        $data = Peminjaman::with(['anggota', 'buku', 'petugas'])
+        $data = Peminjaman::with([
+            'anggota',
+            'buku',
+            'petugas',
+            'pengembalian' // 🔥 TAMBAH INI
+        ])
             ->orderBy('id_peminjaman', 'desc')
             ->get();
 

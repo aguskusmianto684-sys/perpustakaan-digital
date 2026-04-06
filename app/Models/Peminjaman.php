@@ -19,7 +19,8 @@ class Peminjaman extends Model
         'tgl_pinjam',
         'tgl_kembali',
         'tgl_dikembalikan',
-        'status'
+        'status',
+        'denda' // 🔥 TAMBAH INI
     ];
 
     // Relasi ke anggota
@@ -38,5 +39,11 @@ class Peminjaman extends Model
     public function petugas()
     {
         return $this->belongsTo(Petugas::class, 'id_petugas', 'id_petugas');
+    }
+
+    // 🔥 RELASI KE PENGEMBALIAN (WAJIB)
+    public function pengembalian()
+    {
+        return $this->hasOne(Pengembalian::class, 'id_peminjaman');
     }
 }

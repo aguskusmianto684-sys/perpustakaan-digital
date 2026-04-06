@@ -9,7 +9,7 @@
 <div class="card">
     <div class="card-body">
 
-        <h4 class="mb-3">Laporan Peminjaman</h4>
+        <h4 class="mb-3">Laporan Peminjaman & Pengembalian</h4>
 
         <div class="table-responsive">
 
@@ -24,6 +24,8 @@
                         <th>Status</th>
                         <th>Denda</th>
                         <th>Tanggal Pinjam</th>
+                        <th>Tanggal Kembali</th> {{-- 🔥 TAMBAH --}}
+                        <th>Status Pengembalian</th> {{-- 🔥 TAMBAH --}}
                     </tr>
                 </thead>
 
@@ -35,12 +37,12 @@
 
                         <td>{{ $index + 1 }}</td>
 
-                        {{-- ✅ RELASI --}}
+                        {{-- relasi --}}
                         <td>{{ $d->anggota->nama ?? '-' }}</td>
                         <td>{{ $d->buku->judul ?? '-' }}</td>
                         <td>{{ $d->petugas->nama ?? '-' }}</td>
 
-                        {{-- status --}}
+                        {{-- status peminjaman --}}
                         <td>
                             @if($d->status == 'menunggu')
                                 <span class="badge bg-warning text-dark">Menunggu</span>
@@ -67,8 +69,28 @@
                             @endif
                         </td>
 
-                        {{-- tanggal --}}
+                        {{-- tanggal pinjam --}}
                         <td>{{ $d->tgl_pinjam }}</td>
+
+                        {{-- 🔥 tanggal pengembalian --}}
+                        <td>
+                            {{ $d->pengembalian->tgl_pengembalian ?? '-' }}
+                        </td>
+
+                        {{-- 🔥 status pengembalian --}}
+                        <td>
+                            @if($d->pengembalian)
+
+                                @if($d->pengembalian->status == 'terlambat')
+                                    <span class="badge bg-danger">Terlambat</span>
+                                @else
+                                    <span class="badge bg-success">Tepat Waktu</span>
+                                @endif
+
+                            @else
+                                <span class="badge bg-warning">Belum Kembali</span>
+                            @endif
+                        </td>
 
                     </tr>
 
