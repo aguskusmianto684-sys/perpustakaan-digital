@@ -61,37 +61,23 @@
                     {{-- status --}}
                     <td>
 
-                        {{-- terlambat --}}
                         @if($d->status == 'dipinjam' && now()->gt($d->tgl_kembali))
                             <span class="badge bg-danger">Terlambat</span>
-                            <br>
-                            <small class="text-danger">Segera ajukan pengembalian</small>
 
-                        {{-- dipinjam --}}
                         @elseif($d->status == 'dipinjam')
                             <span class="badge bg-primary">Dipinjam</span>
 
-                        {{-- menunggu --}}
                         @elseif($d->status == 'menunggu')
                             <span class="badge bg-warning text-dark">Menunggu</span>
 
-                        {{-- 🔥 MENUNGGU PENGEMBALIAN --}}
-                        @elseif($d->status == 'menunggu pengembalian')
+                        @elseif($d->status == 'menunggu pengembalian') {{-- 🔥 TAMBAH --}}
                             <span class="badge bg-info">Menunggu Konfirmasi</span>
-                            <br>
-                            <small class="text-info">Sedang diproses petugas</small>
 
-                        {{-- ditolak --}}
                         @elseif($d->status == 'ditolak')
                             <span class="badge bg-dark">Ditolak</span>
-                            <br>
-                            <small class="text-danger">Silakan ajukan ulang</small>
 
-                        {{-- dikembalikan --}}
                         @elseif($d->status == 'dikembalikan')
                             <span class="badge bg-success">Dikembalikan</span>
-                            <br>
-                            <small class="text-success">Pengembalian berhasil</small>
 
                         @else
                             <span class="badge bg-secondary">Tidak diketahui</span>
