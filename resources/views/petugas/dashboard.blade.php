@@ -106,6 +106,19 @@
         </a>
         @endif
 
+        {{-- 🔥 NOTIF PENGEMBALIAN --}}
+        @if($pengajuanPengembalian > 0)
+        <a href="/petugas/peminjaman" class="text-decoration-none">
+            <div class="alert alert-info shadow-sm d-flex justify-content-between align-items-center">
+                <div>
+                    🔄 Ada <b>{{ $pengajuanPengembalian }}</b> pengajuan pengembalian
+                    <br><small>Klik untuk konfirmasi</small>
+                </div>
+                <i class="ti ti-arrow-right fs-3"></i>
+            </div>
+        </a>
+        @endif
+
         {{-- ALERT HARI INI --}}
         @if($hariIni > 0)
         <div class="alert alert-info shadow-sm d-flex justify-content-between align-items-center">

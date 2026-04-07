@@ -133,28 +133,28 @@ class PeminjamanController extends Controller
     }
 
     // proses tolak peminjaman buku
-public function tolak($id)
-{
-    $peminjaman = \App\Models\Peminjaman::find($id);
+    public function tolak($id)
+    {
+        $peminjaman = \App\Models\Peminjaman::find($id);
 
-    if (!$peminjaman) {
-        return back()->with('error', 'Data tidak ditemukan');
+        if (!$peminjaman) {
+            return back()->with('error', 'Data tidak ditemukan');
+        }
+
+        if ($peminjaman->status != 'menunggu') {
+            return back()->with('error', 'Tidak bisa menolak');
+        }
+
+        // 🔥 ambil petugas login
+        $petugas = Auth::user()->petugas;
+
+        $peminjaman->update([
+            'status' => 'ditolak',
+            'id_petugas' => $petugas->id_petugas // 🔥 INI YANG KURANG
+        ]);
+
+        return back()->with('success', 'Peminjaman berhasil ditolak');
     }
-
-    if ($peminjaman->status != 'menunggu') {
-        return back()->with('error', 'Tidak bisa menolak');
-    }
-
-    // 🔥 ambil petugas login
-    $petugas = Auth::user()->petugas;
-
-    $peminjaman->update([
-        'status' => 'ditolak',
-        'id_petugas' => $petugas->id_petugas // 🔥 INI YANG KURANG
-    ]);
-
-    return back()->with('success', 'Peminjaman berhasil ditolak');
-}
 
     /**
      * Proses pengembalian buku oleh anggota

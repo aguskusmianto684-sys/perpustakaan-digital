@@ -68,33 +68,40 @@ class BukuAnggotaController extends Controller
      */
     public function pinjam($id)
     {
-        // Ambil data anggota berdasarkan user login
         $anggota = Anggota::where('id_user', Auth::user()->id_user)->first();
 
-        // Hitung jumlah pinjaman yang masih aktif
         $jumlahPinjam = Peminjaman::where('id_anggota', $anggota->id_anggota)
             ->whereIn('status', ['dipinjam', 'menunggu'])
             ->count();
 
-        // Cek batas maksimal peminjaman buku
         if ($jumlahPinjam >= 3) {
             return redirect('/anggota/buku')
                 ->with('error', 'Maksimal 3 buku');
         }
 
-        // Cek apakah buku sudah dipinjam
+        // 🔥 CEK BUKU
+        $buku = Buku::find($id);
+
+        if ($buku->stok <= 0) {
+            return redirect('/anggota/buku')
+                ->with('error', 'Stok buku habis');
+        }
+
+        // 🔥 CEK SUDAH PINJAM
         $cek = Peminjaman::where('id_anggota', $anggota->id_anggota)
             ->where('id_buku', $id)
             ->whereIn('status', ['dipinjam', 'menunggu'])
             ->exists();
 
-        // Jika sudah dipinjam tampilkan pesan
         if ($cek) {
             return redirect('/anggota/buku')
                 ->with('error', 'Buku sudah dipinjam');
         }
 
-        // Simpan data peminjaman baru ke database
+        // 🔥 KURANGI STOK LANGSUNG
+        $buku->decrement('stok');
+
+        // 🔥 SIMPAN PEMINJAMAN
         Peminjaman::create([
             'id_buku' => $id,
             'id_anggota' => $anggota->id_anggota,
@@ -103,9 +110,8 @@ class BukuAnggotaController extends Controller
             'status' => 'menunggu'
         ]);
 
-        // Kembali ke halaman buku dengan sukses
         return redirect('/anggota/buku')
-            ->with('success', 'Request peminjaman berhasil');
+            ->with('success', 'Peminjaman berhasil diajukan');
     }
 
     /**
@@ -128,32 +134,38 @@ class BukuAnggotaController extends Controller
      */
     public function storePinjam(Request $request)
     {
-        // Ambil data anggota dari user login
         $anggota = Anggota::where('id_user', Auth::user()->id_user)->first();
 
-        // Hitung jumlah pinjaman yang masih aktif
         $jumlahPinjam = Peminjaman::where('id_anggota', $anggota->id_anggota)
             ->whereIn('status', ['dipinjam', 'menunggu'])
             ->count();
 
-        // Cek batas maksimal peminjaman buku
         if ($jumlahPinjam >= 3) {
             return redirect('/anggota/buku')
                 ->with('error', 'Maksimal pinjam 3 buku');
         }
 
-        // Cek apakah buku sudah dipinjam
+        // 🔥 CEK BUKU
+        $buku = Buku::find($request->id_buku);
+
+        if ($buku->stok <= 0) {
+            return back()->with('error', 'Stok buku habis');
+        }
+
+        // 🔥 CEK SUDAH PINJAM
         $cek = Peminjaman::where('id_anggota', $anggota->id_anggota)
             ->where('id_buku', $request->id_buku)
             ->whereIn('status', ['dipinjam', 'menunggu'])
             ->exists();
 
-        // Jika sudah dipinjam tampilkan pesan
         if ($cek) {
             return back()->with('error', 'Buku sudah dipinjam');
         }
 
-        // Simpan data peminjaman ke database
+        // 🔥 INI YANG KURANG → KURANGI STOK
+        $buku->decrement('stok');
+
+        // 🔥 SIMPAN
         Peminjaman::create([
             'id_anggota' => $anggota->id_anggota,
             'id_petugas' => null,
@@ -163,7 +175,6 @@ class BukuAnggotaController extends Controller
             'status' => 'menunggu'
         ]);
 
-        // Kembali ke halaman buku dengan sukses
         return redirect('/anggota/buku')
             ->with('success', 'Peminjaman berhasil');
     }
