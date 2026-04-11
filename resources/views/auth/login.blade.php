@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Login</title>
@@ -35,7 +36,7 @@
             padding: 40px;
             width: 350px;
             border-radius: 15px;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
             text-align: center;
         }
 
@@ -119,110 +120,111 @@
 
 <body>
 
-<div class="login-box">
+    <div class="login-box">
 
-    <img src="{{ asset('assets/images/logos/buku.png') }}" class="logo">
-    <div class="title">Perpustakaan Web</div>
+        <img src="{{ asset('assets/images/logos/buku.png') }}" class="logo">
+        <div class="title">Perpustakaan Web</div>
 
-    <form method="POST" action="/login">
-        @csrf
+        <form method="POST" action="/login">
+            @csrf
 
-        <div class="form-group">
-            <div class="input-box">
-                <i class="fa fa-user"></i>
-                <input type="text" name="username" placeholder="Username" required>
+            <div class="form-group">
+                <div class="input-box">
+                    <i class="fa fa-user"></i>
+                    <input type="text" name="username" placeholder="Username" required>
+                </div>
             </div>
-        </div>
 
-        <div class="form-group">
-            <div class="input-box">
-                <i class="fa fa-lock"></i>
-                <input type="password" name="password" id="password" placeholder="Password" required>
-                <i class="fa fa-eye toggle-password" id="toggleIcon" onclick="togglePassword()"></i>
+            <div class="form-group">
+                <div class="input-box">
+                    <i class="fa fa-lock"></i>
+                    <input type="password" name="password" id="password" placeholder="Password" required>
+                    <i class="fa fa-eye toggle-password" id="toggleIcon" onclick="togglePassword()"></i>
+                </div>
             </div>
-        </div>
 
-        <button type="submit">Login</button>
+            <button type="submit">Login</button>
 
-        <div class="register">
-            Belum punya akun anggota?
-            <a href="/register">Daftar disini</a>
-        </div>
+            <div class="register">
+                Belum punya akun anggota?
+                <a href="/register">Daftar disini</a>
+            </div>
 
-    </form>
+        </form>
 
-</div>
+    </div>
 
-{{-- 🔥 ALERT SUCCESS --}}
-@if(session('success'))
-<script>
-Swal.fire({
-    icon: 'success',
-    title: 'Sukses',
-    text: '{{ session('success') }}',
-    timer: 2000,
-    showConfirmButton: false
-});
-</script>
-@endif
+    {{-- 🔥 ALERT SUCCESS --}}
+    @if (session('success'))
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Sukses',
+                text: '{{ session('success') }}',
+                timer: 2000,
+                showConfirmButton: false
+            });
+        </script>
+    @endif
 
-{{-- 🔥 ALERT ERROR --}}
-@if(session('error'))
-<script>
-Swal.fire({
-    icon: 'error',
-    title: 'Gagal',
-    text: '{{ session('error') }}'
-});
-</script>
-@endif
+    {{-- 🔥 ALERT ERROR --}}
+    @if (session('error'))
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal',
+                text: '{{ session('error') }}'
+            });
+        </script>
+    @endif
 
-<script>
-function togglePassword() {
-    var input = document.getElementById("password");
-    var icon = document.getElementById("toggleIcon");
+    <script>
+        function togglePassword() {
+            var input = document.getElementById("password");
+            var icon = document.getElementById("toggleIcon");
 
-    if (input.type === "password") {
-        input.type = "text";
-        icon.classList.remove("fa-eye");
-        icon.classList.add("fa-eye-slash");
-    } else {
-        input.type = "password";
-        icon.classList.remove("fa-eye-slash");
-        icon.classList.add("fa-eye");
-    }
-}
-</script>
+            if (input.type === "password") {
+                input.type = "text";
+                icon.classList.remove("fa-eye");
+                icon.classList.add("fa-eye-slash");
+            } else {
+                input.type = "password";
+                icon.classList.remove("fa-eye-slash");
+                icon.classList.add("fa-eye");
+            }
+        }
+    </script>
 
 
-<script>
-let sudahMuncul = false;
+    <script>
+        let sudahMuncul = false;
 
-history.pushState(null, null, location.href);
+        history.pushState(null, null, location.href);
 
-window.onpopstate = function () {
+        window.onpopstate = function() {
 
-    if (!sudahMuncul) {
-        sudahMuncul = true;
+            if (!sudahMuncul) {
+                sudahMuncul = true;
 
-        Swal.fire({
-            icon: 'warning',
-            title: 'Akses ditolak',
-            text: 'Silakan login terlebih dahulu'
-        }).then(() => {
-            window.location.href = "/login";
-        });
-    }
-};
-</script>
-@if(session('error'))
-<script>
-Swal.fire({
-    icon: 'warning',
-    title: 'Akses ditolak',
-    text: '{{ session('error') }}'
-});
-</script>
-@endif
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Akses ditolak',
+                    text: 'Silakan login terlebih dahulu'
+                }).then(() => {
+                    window.location.href = "/login";
+                });
+            }
+        };
+    </script>
+    @if (session('error'))
+        <script>
+            Swal.fire({
+                icon: 'warning',
+                title: 'Akses ditolak',
+                text: '{{ session('error') }}'
+            });
+        </script>
+    @endif
 </body>
+
 </html>

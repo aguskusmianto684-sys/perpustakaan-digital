@@ -117,9 +117,10 @@ Route::middleware(['auth', 'role:petugas'])->group(function () {
 
 
     // detail riwayat
-Route::get('/petugas/riwayat/detail/{id}',
-    [PeminjamanController::class, 'detailRiwayat']
-)->name('petugas.riwayat.detail');
+    Route::get(
+        '/petugas/riwayat/detail/{id}',
+        [PeminjamanController::class, 'detailRiwayat']
+    )->name('petugas.riwayat.detail');
 
     // Anggota
     Route::get('/petugas/anggota', [AnggotaController::class, 'index']);

@@ -27,7 +27,7 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-        $latest = Peminjaman::with(['anggota','buku','petugas'])
+        $latest = Peminjaman::with(['anggota', 'buku', 'petugas'])
             ->latest('tgl_pinjam')
             ->take(5)
             ->get();

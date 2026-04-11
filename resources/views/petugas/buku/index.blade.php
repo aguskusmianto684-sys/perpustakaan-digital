@@ -5,85 +5,77 @@
 @endsection
 
 @section('content')
+    <div class="card">
+        <div class="card-body">
 
-<div class="card">
-    <div class="card-body">
+            <h4 class="mb-3">Daftar Buku</h4>
 
-        <h4 class="mb-3">Daftar Buku</h4>
+            <a href="/petugas/buku/create" class="btn btn-primary mb-3">
+                + Tambah Buku
+            </a>
 
-        <a href="/petugas/buku/create" class="btn btn-primary mb-3">
-            + Tambah Buku
-        </a>
+            <div class="table-responsive">
 
-        <div class="table-responsive">
+                <table class="table table-bordered table-hover align-middle datatable">
 
-            <table class="table table-bordered table-hover align-middle datatable">
+                    <thead class="table-light">
+                        <tr>
+                            <th>No</th>
+                            <th>Gambar</th>
+                            <th>Judul Buku</th>
+                            <th>Penulis</th>
+                            <th>Terbit</th>
+                            <th>Kategori</th>
+                            <th width="120">Aksi</th>
+                        </tr>
+                    </thead>
 
-                <thead class="table-light">
-                    <tr>
-                        <th>No</th>
-                        <th>Gambar</th>
-                        <th>Judul Buku</th>
-                        <th>Penulis</th>
-                        <th>Terbit</th>
-                        <th>Kategori</th>
-                        <th width="120">Aksi</th>
-                    </tr>
-                </thead>
+                    <tbody>
 
-                <tbody>
+                        @foreach ($buku as $index => $b)
+                            <tr>
 
-                    @foreach($buku as $index => $b)
+                                <td>{{ $index + 1 }}</td>
 
-                    <tr>
+                                <td>
+                                    <img src="{{ asset('uploads/buku/' . $b->gambar) }}" width="50"
+                                        style="border-radius:5px;">
+                                </td>
 
-                        <td>{{ $index + 1 }}</td>
+                                <td>{{ $b->judul }}</td>
 
-                        <td>
-                            <img src="{{ asset('uploads/buku/'.$b->gambar) }}"
-                                 width="50"
-                                 style="border-radius:5px;">
-                        </td>
+                                <td>{{ $b->penulis }}</td>
 
-                        <td>{{ $b->judul }}</td>
+                                <td>{{ $b->tahun_terbit }}</td>
 
-                        <td>{{ $b->penulis }}</td>
+                                <td>{{ $b->kategori }}</td>
 
-                        <td>{{ $b->tahun_terbit }}</td>
+                                <td>
 
-                        <td>{{ $b->kategori }}</td>
+                                    <a href="/petugas/buku/detail/{{ $b->id_buku }}" class="btn btn-dark btn-sm">
+                                        <i class="ti ti-eye"></i>
+                                    </a>
 
-                        <td>
+                                    <a href="/petugas/buku/edit/{{ $b->id_buku }}" class="btn btn-warning btn-sm">
+                                        <i class="ti ti-edit"></i>
+                                    </a>
 
-                            <a href="/petugas/buku/detail/{{ $b->id_buku }}"
-                               class="btn btn-dark btn-sm">
-                                <i class="ti ti-eye"></i>
-                            </a>
+                                    <a href="/petugas/buku/delete/{{ $b->id_buku }}" class="btn btn-danger btn-sm"
+                                        onclick="return confirm('Yakin ingin menghapus buku ini?')">
+                                        <i class="ti ti-trash"></i>
+                                    </a>
 
-                            <a href="/petugas/buku/edit/{{ $b->id_buku }}"
-                               class="btn btn-warning btn-sm">
-                                <i class="ti ti-edit"></i>
-                            </a>
+                                </td>
 
-                            <a href="/petugas/buku/delete/{{ $b->id_buku }}"
-                               class="btn btn-danger btn-sm"
-                               onclick="return confirm('Yakin ingin menghapus buku ini?')">
-                                <i class="ti ti-trash"></i>
-                            </a>
+                            </tr>
+                        @endforeach
 
-                        </td>
+                    </tbody>
 
-                    </tr>
+                </table>
 
-                    @endforeach
-
-                </tbody>
-
-            </table>
+            </div>
 
         </div>
-
     </div>
-</div>
-
 @endsection

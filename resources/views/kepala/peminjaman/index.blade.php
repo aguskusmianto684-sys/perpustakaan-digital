@@ -5,112 +5,105 @@
 @endsection
 
 @section('content')
+    <div class="card">
+        <div class="card-body">
 
-<div class="card">
-    <div class="card-body">
+            <h4 class="mb-3">Data Peminjaman</h4>
 
-        <h4 class="mb-3">Data Peminjaman</h4>
+            <div class="table-responsive">
 
-        <div class="table-responsive">
+                <table class="table table-bordered table-hover align-middle datatable">
 
-            <table class="table table-bordered table-hover align-middle datatable">
+                    <thead class="table-light">
+                        <tr>
+                            <th>No</th>
+                            <th>Anggota</th>
+                            <th>Buku</th>
+                            <th>Petugas</th>
+                            <th>Status</th>
+                            <th>Denda</th>
+                            <th width="80">Aksi</th>
+                        </tr>
+                    </thead>
 
-                <thead class="table-light">
-                    <tr>
-                        <th>No</th>
-                        <th>Anggota</th>
-                        <th>Buku</th>
-                        <th>Petugas</th>
-                        <th>Status</th>
-                        <th>Denda</th>
-                        <th width="80">Aksi</th>
-                    </tr>
-                </thead>
+                    <tbody>
 
-                <tbody>
+                        @foreach ($peminjaman as $index => $p)
+                            <tr>
 
-                    @foreach($peminjaman as $index => $p)
+                                <td>{{ $index + 1 }}</td>
+                                <td>{{ $p->anggota->nama ?? '-' }}</td>
+                                <td>{{ $p->buku->judul ?? '-' }}</td>
+                                <td>{{ $p->petugas->nama ?? '-' }}</td>
 
-                    <tr>
+                                <td>
+                                    @if ($p->status == 'dipinjam')
+                                        <span class="badge bg-warning">
+                                            Dipinjam
+                                        </span>
+                                    @else
+                                        <span class="badge bg-success">
+                                            Dikembalikan
+                                        </span>
+                                    @endif
+                                </td>
 
-                        <td>{{ $index + 1 }}</td>
-                        <td>{{ $p->anggota->nama ?? '-' }}</td>
-                        <td>{{ $p->buku->judul ?? '-' }}</td>
-                        <td>{{ $p->petugas->nama ?? '-' }}</td>
+                                <td>
+                                    @php
+                                        $denda = 0;
+                                        $hari = 0;
 
-                        <td>
-                            @if($p->status == 'dipinjam')
-                                <span class="badge bg-warning">
-                                    Dipinjam
-                                </span>
-                            @else
-                                <span class="badge bg-success">
-                                    Dikembalikan
-                                </span>
-                            @endif
-                        </td>
+                                        // 🔥 kalau masih dipinjam (realtime)
+                                        if ($p->status == 'dipinjam' && now()->gt($p->tgl_kembali)) {
+                                            $hari = \Carbon\Carbon::parse($p->tgl_kembali)
+                                                ->startOfDay()
+                                                ->diffInDays(now()->startOfDay());
 
-                        <td>
-                            @php
-                                $denda = 0;
-                                $hari = 0;
+                                            $denda = $hari * 1000;
+                                        }
 
-                                // 🔥 kalau masih dipinjam (realtime)
-                                if ($p->status == 'dipinjam' && now()->gt($p->tgl_kembali)) {
+                                        // 🔥 kalau sudah dikembalikan (AMBIL DARI DB + HITUNG HARI)
+                                        elseif (
+                                            $p->status == 'dikembalikan' &&
+                                            $p->tgl_dikembalikan > $p->tgl_kembali
+                                        ) {
+                                            $hari = \Carbon\Carbon::parse($p->tgl_kembali)
+                                                ->startOfDay()
+                                                ->diffInDays(\Carbon\Carbon::parse($p->tgl_dikembalikan)->startOfDay());
 
-                                    $hari = \Carbon\Carbon::parse($p->tgl_kembali)
-                                            ->startOfDay()
-                                            ->diffInDays(now()->startOfDay());
+                                            $denda = $hari * 1000;
+                                        }
+                                    @endphp
 
-                                    $denda = $hari * 1000;
-                                }
+                                    @if ($denda > 0)
+                                        <span class="text-danger fw-semibold">
+                                            Rp {{ number_format($denda) }}
+                                        </span>
+                                        <br>
 
-                                // 🔥 kalau sudah dikembalikan (AMBIL DARI DB + HITUNG HARI)
-                                elseif ($p->status == 'dikembalikan' && $p->tgl_dikembalikan > $p->tgl_kembali) {
+                                        <small class="text-danger">
+                                            Terlambat {{ $hari }} hari
+                                        </small>
+                                    @else
+                                        -
+                                    @endif
+                                </td>
 
-                                    $hari = \Carbon\Carbon::parse($p->tgl_kembali)
-                                            ->startOfDay()
-                                            ->diffInDays(
-                                                \Carbon\Carbon::parse($p->tgl_dikembalikan)->startOfDay()
-                                            );
+                                <td>
+                                    <a href="/kepala/peminjaman/detail/{{ $p->id_peminjaman }}" class="btn btn-dark btn-sm">
+                                        <i class="ti ti-eye"></i>
+                                    </a>
+                                </td>
 
-                                    $denda = $hari * 1000;
-                                }
-                            @endphp
+                            </tr>
+                        @endforeach
 
-                            @if($denda > 0)
-                                <span class="text-danger fw-semibold">
-                                    Rp {{ number_format($denda) }}
-                                </span>
-                                <br>
+                    </tbody>
 
-                                <small class="text-danger">
-                                    Terlambat {{ $hari }} hari
-                                </small>
+                </table>
 
-                            @else
-                                -
-                            @endif
-                        </td>
-
-                        <td>
-                            <a href="/kepala/peminjaman/detail/{{ $p->id_peminjaman }}"
-                               class="btn btn-dark btn-sm">
-                                <i class="ti ti-eye"></i>
-                            </a>
-                        </td>
-
-                    </tr>
-
-                    @endforeach
-
-                </tbody>
-
-            </table>
+            </div>
 
         </div>
-
     </div>
-</div>
-
 @endsection

@@ -5,90 +5,78 @@
 @endsection
 
 @section('content')
+    <div class="card">
+        <div class="card-body">
 
-<div class="card">
-    <div class="card-body">
+            <h4 class="mb-4">
+                <i class="ti ti-edit"></i> Edit Anggota
+            </h4>
 
-        <h4 class="mb-4">
-            <i class="ti ti-edit"></i> Edit Anggota
-        </h4>
+            <form action="/petugas/anggota/update/{{ $anggota->id_anggota }}" method="POST">
+                @csrf
 
-        <form action="/petugas/anggota/update/{{ $anggota->id_anggota }}" method="POST">
-            @csrf
+                <div class="row">
 
-            <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label>Username</label>
+                        <input type="text" name="username" value="{{ $anggota->username ?? '' }}" class="form-control"
+                            required>
+                    </div>
 
-                <div class="col-md-6 mb-3">
-                    <label>Username</label>
-                    <input type="text" name="username"
-                           value="{{ $anggota->username ?? '' }}"
-                           class="form-control" required>
+                    <div class="col-md-6 mb-3">
+                        <label>Password (opsional)</label>
+                        <input type="password" name="password" class="form-control">
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label>Nama</label>
+                        <input type="text" name="nama" value="{{ $anggota->nama }}" class="form-control" required>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label>Email</label>
+                        <input type="email" name="email" value="{{ $anggota->email }}" class="form-control" required>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label>No HP</label>
+                        <input type="text" name="no_hp" value="{{ $anggota->no_hp }}" class="form-control">
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label>Jenis Kelamin</label>
+                        <select name="jenis_kel" class="form-control">
+                            <option value="L" {{ $anggota->jenis_kel == 'L' ? 'selected' : '' }}>
+                                Laki-laki
+                            </option>
+                            <option value="P" {{ $anggota->jenis_kel == 'P' ? 'selected' : '' }}>
+                                Perempuan
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label>Tanggal Lahir</label>
+                        <input type="date" name="tgl_lahir" value="{{ $anggota->tgl_lahir }}" class="form-control">
+                    </div>
+
+                    <div class="col-md-12 mb-3">
+                        <label>Alamat</label>
+                        <textarea name="alamat" class="form-control">{{ $anggota->alamat }}</textarea>
+                    </div>
+
                 </div>
 
-                <div class="col-md-6 mb-3">
-                    <label>Password (opsional)</label>
-                    <input type="password" name="password"
-                           class="form-control">
-                </div>
+                <button class="btn btn-primary">
+                    <i class="ti ti-device-floppy"></i> Update
+                </button>
 
-                <div class="col-md-6 mb-3">
-                    <label>Nama</label>
-                    <input type="text" name="nama"
-                           value="{{ $anggota->nama }}"
-                           class="form-control" required>
-                </div>
+                <a href="/petugas/anggota" class="btn btn-secondary">
+                    <i class="ti ti-arrow-left"></i> Kembali
+                </a>
 
-                <div class="col-md-6 mb-3">
-                    <label>Email</label>
-                    <input type="email" name="email"
-                           value="{{ $anggota->email }}"
-                           class="form-control" required>
-                </div>
+            </form>
 
-                <div class="col-md-6 mb-3">
-                    <label>No HP</label>
-                    <input type="text" name="no_hp"
-                           value="{{ $anggota->no_hp }}"
-                           class="form-control">
-                </div>
-
-                <div class="col-md-6 mb-3">
-                    <label>Jenis Kelamin</label>
-                    <select name="jenis_kel" class="form-control">
-                        <option value="L" {{ $anggota->jenis_kel == 'L' ? 'selected' : '' }}>
-                            Laki-laki
-                        </option>
-                        <option value="P" {{ $anggota->jenis_kel == 'P' ? 'selected' : '' }}>
-                            Perempuan
-                        </option>
-                    </select>
-                </div>
-
-                <div class="col-md-6 mb-3">
-                    <label>Tanggal Lahir</label>
-                    <input type="date" name="tgl_lahir"
-                           value="{{ $anggota->tgl_lahir }}"
-                           class="form-control">
-                </div>
-
-                <div class="col-md-12 mb-3">
-                    <label>Alamat</label>
-                    <textarea name="alamat" class="form-control">{{ $anggota->alamat }}</textarea>
-                </div>
-
-            </div>
-
-            <button class="btn btn-primary">
-                <i class="ti ti-device-floppy"></i> Update
-            </button>
-
-            <a href="/petugas/anggota" class="btn btn-secondary">
-                <i class="ti ti-arrow-left"></i> Kembali
-            </a>
-
-        </form>
-
+        </div>
     </div>
-</div>
-
 @endsection

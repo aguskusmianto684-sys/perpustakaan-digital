@@ -11,7 +11,13 @@ class Buku extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'judul','penulis','penerbit','tahun_terbit',
-        'kategori','stok','gambar','deskripsi'
+        'judul',
+        'penulis',
+        'penerbit',
+        'tahun_terbit',
+        'kategori',
+        'stok',
+        'gambar',
+        'deskripsi'
     ];
 }
