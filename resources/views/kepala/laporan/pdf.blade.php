@@ -1,22 +1,32 @@
-<h3 style="text-align:center;">LAPORAN PERPUSTAKAAN</h3>
+<h3 style="text-align:center; margin-bottom:5px;">
+    LAPORAN PERPUSTAKAAN
+</h3>
 
-<p>
-    Bulan:
-    {{ $bulan ? \Carbon\Carbon::create()->month((int)$bulan)->translatedFormat('F') : 'Semua' }}
-    <br>
-    Tahun: {{ $tahun ?? 'Semua' }}
+<p style="text-align:center; margin-top:0;">
+    Periode:
+    {{ $bulan ? \Carbon\Carbon::create()->month((int)$bulan)->translatedFormat('F') : 'Semua Bulan' }}
+    {{ $tahun ?? '' }}
 </p>
 
-<table border="1" width="100%" cellspacing="0" cellpadding="5">
-    <tr>
-        <th>No</th>
-        <th>Anggota</th>
-        <th>Buku</th>
-        <th>Petugas</th>
-        <th>Status</th>
-        <th>Denda</th>
-    </tr>
+<p style="text-align:center; font-size:12px;">
+    Dicetak pada: {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}
+</p>
 
+<br>
+
+<table border="1" width="100%" cellspacing="0" cellpadding="6" style="border-collapse:collapse; font-size:12px;">
+    <thead>
+        <tr style="background:#f2f2f2;">
+            <th>No</th>
+            <th>Anggota</th>
+            <th>Buku</th>
+            <th>Petugas</th>
+            <th>Status</th>
+            <th>Denda</th>
+        </tr>
+    </thead>
+
+    <tbody>
     @foreach($data as $i => $d)
 
     @php
@@ -46,8 +56,6 @@
         }
 
         // 🔥 FORMAT STATUS
-        $statusText = '';
-
         if ($d->status == 'menunggu') {
             $statusText = 'Menunggu';
         } elseif ($d->status == 'dipinjam') {
@@ -60,22 +68,22 @@
     @endphp
 
     <tr>
-        <td>{{ $i+1 }}</td>
+        <td align="center">{{ $i+1 }}</td>
         <td>{{ $d->anggota->nama ?? '-' }}</td>
         <td>{{ $d->buku->judul ?? '-' }}</td>
         <td>{{ $d->petugas->nama ?? '-' }}</td>
 
         {{-- STATUS --}}
-        <td>
+        <td align="center">
             {{ $statusText }}
         </td>
 
-        {{-- 🔥 DENDA FIX --}}
-        <td>
+        {{-- 🔥 DENDA --}}
+        <td align="center">
             @if($denda > 0)
-                Rp {{ number_format($denda) }}
+                <b>Rp {{ number_format($denda) }}</b>
                 <br>
-                (Terlambat {{ $hari }} hari)
+                <small>(Terlambat {{ $hari }} hari)</small>
             @else
                 -
             @endif
@@ -83,4 +91,33 @@
     </tr>
 
     @endforeach
+    </tbody>
+</table>
+
+<br><br>
+
+{{-- 🔥 TANGGAL --}}
+<p style="text-align:right;">
+    Banjar, {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}
+</p>
+
+<br><br><br>
+
+{{-- 🔥 TANDA TANGAN --}}
+<table width="100%" style="text-align:center;">
+    <tr>
+        <td>
+            Mengetahui,<br>
+            Kepala Perpustakaan
+            <br><br><br><br>
+            <u><b>_____________________</b></u>
+        </td>
+
+        <td>
+            Dibuat oleh,<br>
+            Petugas Perpustakaan
+            <br><br><br><br>
+            <u><b>_____________________</b></u>
+        </td>
+    </tr>
 </table>
