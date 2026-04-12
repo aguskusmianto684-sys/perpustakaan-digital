@@ -50,12 +50,21 @@
                                         $denda = 0;
                                         $hari = 0;
 
-                                        if ($p->status == 'dipinjam' && now()->gt($p->tgl_kembali)) {
+                                        // 🔥 DIPINJAM & MENUNGGU PENGEMBALIAN → hitung realtime
+                                        if (
+                                            in_array($p->status, ['dipinjam', 'menunggu pengembalian']) &&
+                                            now()->gt($p->tgl_kembali)
+                                        ) {
                                             $hari = \Carbon\Carbon::parse($p->tgl_kembali)
                                                 ->startOfDay()
                                                 ->diffInDays(now()->startOfDay());
 
                                             $denda = $hari * 1000;
+                                        }
+
+                                        // 🔥 SUDAH DIKEMBALIKAN → ambil dari database
+                                        elseif ($p->status == 'dikembalikan') {
+                                            $denda = $p->denda;
                                         }
                                     @endphp
 
@@ -64,9 +73,17 @@
                                             Rp {{ number_format($denda) }}
                                         </span>
                                         <br>
-                                        <small class="text-danger">
-                                            Terlambat {{ $hari }} hari
-                                        </small>
+
+                                        {{-- 🔥 KETERANGAN --}}
+                                        @if ($p->status == 'dikembalikan')
+                                            <small class="text-success">
+                                                ✔ Sudah Lunas
+                                            </small>
+                                        @else
+                                            <small class="text-danger">
+                                                Terlambat {{ $hari }} hari
+                                            </small>
+                                        @endif
                                     @else
                                         -
                                     @endif

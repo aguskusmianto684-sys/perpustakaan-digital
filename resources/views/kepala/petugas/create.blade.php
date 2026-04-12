@@ -23,6 +23,15 @@
             <h4 class="mb-4">
                 <i class="ti ti-user-plus"></i> Tambah Petugas
             </h4>
+            @if ($errors->any())
+                <div class="alert alert-danger">
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
 
             <form action="/kepala/petugas/store" method="POST">
                 @csrf

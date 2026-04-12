@@ -161,6 +161,7 @@ class PeminjamanController extends Controller
      * Proses pengembalian buku oleh anggota
      */
 
+
     public function kembalikan($id)
     {
         $pinjam = Peminjaman::find($id);
@@ -174,28 +175,33 @@ class PeminjamanController extends Controller
             return back()->with('error', 'Buku sudah dikembalikan');
         }
 
-        // tambah stok buku
+        // 🔥 tambah stok buku
         Buku::where('id_buku', $pinjam->id_buku)->increment('stok');
 
-        $today = Carbon::now();
+        // 🔥 tanggal tanpa jam
+        $today = Carbon::now()->startOfDay();
+        $batas = Carbon::parse($pinjam->tgl_kembali)->startOfDay();
+
         $denda = 0;
+        $hariTerlambat = 0;
         $statusPengembalian = 'tepat waktu';
 
-        // 🔥 hitung denda
-        if ($today->gt($pinjam->tgl_kembali)) {
-            $hariTerlambat = Carbon::parse($pinjam->tgl_kembali)->diffInDays($today);
+        // 🔥 HITUNG DENDA (WAJIB)
+        if ($today->gt($batas)) {
+
+            $hariTerlambat = $batas->diffInDays($today);
+
             $denda = $hariTerlambat * 1000;
             $statusPengembalian = 'terlambat';
         }
 
-        // update peminjaman
-        $pinjam->update([
-            'status' => 'dikembalikan',
-            'tgl_dikembalikan' => $today,
-            'denda' => $denda
-        ]);
+        // 🔥 UPDATE PEMINJAMAN (PASTI MASUK DB)
+        $pinjam->status = 'dikembalikan';
+        $pinjam->tgl_dikembalikan = $today;
+        $pinjam->denda = $denda;
+        $pinjam->save(); // 🔥 pakai save biar lebih pasti
 
-        // 🔥 WAJIB: insert ke tabel pengembalian
+        // 🔥 SIMPAN RIWAYAT PENGEMBALIAN
         Pengembalian::create([
             'id_peminjaman' => $pinjam->id_peminjaman,
             'tgl_pengembalian' => $today,
@@ -230,27 +236,27 @@ class PeminjamanController extends Controller
     /**
      * Menampilkan riwayat peminjaman sudah dikembalikan
      */
-// 🔥 RIWAYAT
-public function riwayat()
-{
-    $data = Peminjaman::with(['anggota', 'buku'])
-        ->whereIn('status', ['dikembalikan', 'ditolak'])
-        ->orderBy('tgl_pinjam', 'desc')
-        ->get();
+    // 🔥 RIWAYAT
+    public function riwayat()
+    {
+        $data = Peminjaman::with(['anggota', 'buku'])
+            ->whereIn('status', ['dikembalikan', 'ditolak'])
+            ->orderBy('tgl_pinjam', 'desc')
+            ->get();
 
-    return view('petugas.riwayat.index', compact('data')); // ✅ FIX
-}
+        return view('petugas.riwayat.index', compact('data')); // ✅ FIX
+    }
 
 
-// 🔥 DETAIL RIWAYAT
-public function detailRiwayat($id)
-{
-    $data = Peminjaman::with(['anggota', 'buku'])
-        ->where('id_peminjaman', $id)
-        ->first();
+    // 🔥 DETAIL RIWAYAT
+    public function detailRiwayat($id)
+    {
+        $data = Peminjaman::with(['anggota', 'buku'])
+            ->where('id_peminjaman', $id)
+            ->first();
 
-    return view('petugas.riwayat.detail', compact('data')); // ✅ SUDAH BENAR
-}
+        return view('petugas.riwayat.detail', compact('data')); // ✅ SUDAH BENAR
+    }
 
     /**
      * Menampilkan data peminjaman untuk kepala
