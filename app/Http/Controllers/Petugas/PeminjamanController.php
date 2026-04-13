@@ -133,83 +133,95 @@ class PeminjamanController extends Controller
     }
 
     // proses tolak peminjaman buku
-    public function tolak($id)
+    public function tolak($id, $alasan)
     {
-        // ambil data peminjaman
         $peminjaman = Peminjaman::find($id);
 
-        // jika tidak ditemukan
         if (!$peminjaman) {
             return back()->with('error', 'Data tidak ditemukan');
         }
 
-        // hanya bisa ditolak jika status menunggu
-        if ($peminjaman->status != 'menunggu') {
-            return back()->with('error', 'Tidak bisa menolak');
-        }
 
-        // ambil petugas login
         $petugas = Auth::user()->petugas;
 
-        // kembalikan stok buku
+        if ($alasan == "1") $text = "Buku sedang dipinjam oleh anggota lain";
+        elseif ($alasan == "2") $text = "Stok buku tidak tersedia";
+        elseif ($alasan == "3") $text = "Melebihi batas maksimal peminjaman";
+        elseif ($alasan == "4") $text = "Data anggota tidak valid";
+        else $text = $alasan;
+
         Buku::where('id_buku', $peminjaman->id_buku)->increment('stok');
 
-        // update status menjadi ditolak
         $peminjaman->update([
             'status' => 'ditolak',
+            'alasan' => $text,
             'id_petugas' => $petugas->id_petugas
         ]);
 
         return back()->with('success', 'Peminjaman berhasil ditolak');
     }
 
-    /**
-     * Proses pengembalian buku oleh anggota
-     */
-    public function kembalikan($id)
+    public function konfirmasiPengembalian($id)
     {
-        // ambil data peminjaman
         $pinjam = Peminjaman::find($id);
 
-        // jika tidak ditemukan
         if (!$pinjam) {
             return back()->with('error', 'Data tidak ditemukan');
         }
 
-        // cegah pengembalian dua kali
+        if ($pinjam->status != 'menunggu pengembalian') {
+            return back()->with('error', 'Tidak valid');
+        }
+
+        $today = now();
+
+        $pinjam->update([
+            'status' => 'dikembalikan',
+            'tgl_dikembalikan' => $today
+        ]);
+
+        return back()->with('success', 'Pengembalian dikonfirmasi');
+    }
+
+    /**
+     * Proses pengembalian buku oleh anggota
+     */
+
+    public function kembalikan($id)
+    {
+        $pinjam = Peminjaman::find($id);
+
+        if (!$pinjam) {
+            return back()->with('error', 'Data tidak ditemukan');
+        }
+
         if ($pinjam->status == 'dikembalikan') {
             return back()->with('error', 'Buku sudah dikembalikan');
         }
 
-        // tambah stok buku
+        // tambah stok
         Buku::where('id_buku', $pinjam->id_buku)->increment('stok');
 
-        // ambil tanggal hari ini tanpa jam
         $today = Carbon::now()->startOfDay();
-
-        // ambil batas pengembalian
         $batas = Carbon::parse($pinjam->tgl_kembali)->startOfDay();
 
         $denda = 0;
         $hariTerlambat = 0;
         $statusPengembalian = 'tepat waktu';
 
-        // hitung denda jika terlambat
         if ($today->gt($batas)) {
-
             $hariTerlambat = $batas->diffInDays($today);
-
-            $denda = $hariTerlambat * 1000; // denda per hari
+            $denda = $hariTerlambat * 1000;
             $statusPengembalian = 'terlambat';
         }
 
-        // update data peminjaman
+        // update peminjaman
         $pinjam->status = 'dikembalikan';
         $pinjam->tgl_dikembalikan = $today;
         $pinjam->denda = $denda;
         $pinjam->save();
 
-        // simpan ke tabel pengembalian
+        // simpan ke pengembalian
         Pengembalian::create([
             'id_peminjaman' => $pinjam->id_peminjaman,
             'tgl_pengembalian' => $today,
@@ -220,24 +232,32 @@ class PeminjamanController extends Controller
         return back()->with('success', 'Buku berhasil dikembalikan');
     }
 
-    public function tolakPengembalian($id)
+    public function tolakPengembalian($id, $alasan)
     {
-        // ambil data peminjaman
         $pinjam = Peminjaman::find($id);
 
-        // jika tidak ditemukan
         if (!$pinjam) {
             return back()->with('error', 'Data tidak ditemukan');
         }
 
-        // hanya bisa ditolak jika status menunggu pengembalian
-        if ($pinjam->status != 'menunggu pengembalian') {
+        // 🔥 PERBAIKAN VALIDASI
+        if (!in_array($pinjam->status, ['menunggu pengembalian', 'dipinjam'])) {
             return back()->with('error', 'Tidak bisa menolak');
         }
 
-        // kembalikan status ke dipinjam
+        $petugas = Auth::user()->petugas;
+
+        // mapping alasan
+        if ($alasan == "1") $text = "Buku belum benar-benar dikembalikan";
+        elseif ($alasan == "2") $text = "Kondisi buku rusak atau tidak sesuai";
+        elseif ($alasan == "3") $text = "Data pengembalian tidak sesuai";
+        elseif ($alasan == "4") $text = "Perlu pengecekan ulang oleh petugas";
+        else $text = $alasan;
+
         $pinjam->update([
-            'status' => 'dipinjam'
+            'status' => 'dipinjam',
+            'alasan' => $text,
+            'id_petugas' => $petugas->id_petugas
         ]);
 
         return back()->with('success', 'Pengembalian ditolak');
@@ -330,5 +350,24 @@ class PeminjamanController extends Controller
             ->get();
 
         return view('kepala.laporan.index', compact('data'));
+    }
+
+    // bayar denda
+    public function bayar($id)
+    {
+        $peminjaman = Peminjaman::findOrFail($id);
+
+        $peminjaman->denda = 0;
+        $peminjaman->save();
+
+        return back()->with('success', 'Pembayaran berhasil');
+    }
+
+    // untuk struk pembayarann
+    public function struk($id)
+    {
+        $peminjaman = \App\Models\Peminjaman::with(['anggota', 'buku'])->findOrFail($id);
+
+        return view('petugas.peminjaman.struk', compact('peminjaman'));
     }
 }

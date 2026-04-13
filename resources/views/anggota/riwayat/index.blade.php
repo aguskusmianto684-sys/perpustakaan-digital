@@ -3,132 +3,133 @@
 @section('sidebar')
     @include('layouts.partials.sidebar-anggota')
 @endsection
+
 @section('content')
-    <div class="container">
+<div class="container">
 
-        {{-- judul halaman --}}
-        <h4 class="mb-4">
-            <i class="ti ti-book"></i> Buku Saya
-        </h4>
+    <h4 class="mb-4">
+        <i class="ti ti-book"></i> Riwayat peminjaman
+    </h4>
 
-        <div class="table-responsive">
+    <div class="table-responsive">
 
-            <table class="table table-bordered table-hover align-middle datatable">
+        <table class="table table-bordered table-hover align-middle datatable">
 
-                <thead class="table-light">
-                    <tr>
-                        <th>No</th>
-                        <th>Buku</th>
-                        <th>Tanggal Pinjam</th>
-                        <th>Tanggal Kembali</th>
-                        <th>Denda</th>
-                        <th>Status</th>
-                        <th>Aksi</th>
-                    </tr>
-                </thead>
+            <thead class="table-light">
+                <tr>
+                    <th>No</th>
+                    <th>Buku</th>
+                    <th>Tanggal Pinjam</th>
+                    <th>Tanggal Kembali</th>
+                    <th>Denda</th>
+                    <th>Status</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
 
-                <tbody>
+            <tbody>
 
-                    @foreach ($data as $index => $d)
-                        <tr>
+                @foreach ($data as $index => $d)
+                <tr>
 
-                            {{-- nomor --}}
-                            <td>{{ $index + 1 }}</td>
+                    <td>{{ $index + 1 }}</td>
 
-                            {{-- ✅ RELASI BUKU --}}
-                            <td>
-                                <img src="{{ asset('uploads/buku/' . ($d->buku->gambar ?? 'default.png')) }}" width="40">
-                                {{ $d->buku->judul ?? '-' }}
-                            </td>
+                    <td>
+                        <img src="{{ asset('uploads/buku/' . ($d->buku->gambar ?? 'default.png')) }}" width="40">
+                        {{ $d->buku->judul ?? '-' }}
+                    </td>
 
-                            {{-- tanggal --}}
-                            <td>{{ $d->tgl_pinjam }}</td>
-                            <td>{{ $d->tgl_kembali }}</td>
+                    <td>{{ $d->tgl_pinjam }}</td>
+                    <td>{{ $d->tgl_kembali }}</td>
 
-                            {{-- denda --}}
-                            <td>
-                                @php
-                                    $denda = 0;
-                                    $hari = 0;
+                    <td>
+                        @php
+                            $dendaAsli = $d->pengembalian->denda ?? 0;
+                        @endphp
 
-                                    // 🔥 kalau sudah dikembalikan
-                                    if ($d->status == 'dikembalikan' && $d->tgl_dikembalikan) {
-                                        if ($d->tgl_dikembalikan > $d->tgl_kembali) {
-                                            $hari = \Carbon\Carbon::parse($d->tgl_kembali)
-                                                ->startOfDay()
-                                                ->diffInDays(\Carbon\Carbon::parse($d->tgl_dikembalikan)->startOfDay());
+                        @if ($d->status == 'dikembalikan')
+                            @if ($dendaAsli > 0)
+                                Rp {{ number_format($dendaAsli) }}
+                            @else
+                                <small class="text-success">Tepat Waktu</small>
+                            @endif
+                        @else
+                            -
+                        @endif
+                    </td>
 
-                                            $denda = $hari * 1000;
-                                        }
-                                    }
-                                    // 🔥 kalau masih dipinjam (realtime)
-                                    elseif ($d->status == 'dipinjam' && now()->gt($d->tgl_kembali)) {
-                                        $hari = \Carbon\Carbon::parse($d->tgl_kembali)
-                                            ->startOfDay()
-                                            ->diffInDays(now()->startOfDay());
+                    <td>
 
-                                        $denda = $hari * 1000;
-                                    }
-                                @endphp
+                        @if($d->status == 'ditolak')
+                            <span class="badge bg-danger">Ditolak</span>
 
-                                @if ($denda > 0)
-                                    <span class="text-danger fw-semibold">
-                                        Rp {{ number_format($denda) }}
-                                    </span>
-                                    <br>
-                                    <small class="text-danger">
-                                        Terlambat {{ $hari }} hari
-                                    </small>
-                                @else
-                                    -
-                                @endif
-                            </td>
+                            @if($d->alasan)
+                                <br>
+                                <button class="btn btn-sm btn-outline-danger mt-1"
+                                    onclick="showAlasan(this)"
+                                    data-alasan="{{ $d->alasan }}">
+                                    Lihat Alasan
+                                </button>
+                            @endif
 
-                            {{-- status --}}
-                            <td>
+                        @elseif($d->status == 'dikembalikan')
+                            <span class="badge bg-success">Dikembalikan</span>
 
-                                {{-- terlambat --}}
-                                @if ($d->status == 'dipinjam' && now()->gt($d->tgl_kembali))
-                                    <span class="badge bg-danger">Terlambat</span>
+                        @else
+                            <span class="badge bg-secondary">{{ $d->status }}</span>
+                        @endif
 
-                                    {{-- dipinjam --}}
-                                @elseif($d->status == 'dipinjam')
-                                    <span class="badge bg-primary">Dipinjam</span>
+                    </td>
 
-                                    {{-- menunggu --}}
-                                @elseif($d->status == 'menunggu')
-                                    <span class="badge bg-warning text-dark">Menunggu</span>
+                    <td>
+                        <a href="/anggota/riwayat/detail/{{ $d->id_peminjaman }}"
+                           class="btn btn-sm btn-info">
+                           <i class="ti ti-eye"></i>
+                        </a>
+                    </td>
 
-                                    {{-- ditolak --}}
-                                @elseif($d->status == 'ditolak')
-                                    <span class="badge bg-dark">Ditolak</span>
+                </tr>
+                @endforeach
 
-                                    {{-- dikembalikan --}}
-                                @elseif($d->status == 'dikembalikan')
-                                    <span class="badge bg-success">Dikembalikan</span>
+            </tbody>
 
-                                    {{-- fallback --}}
-                                @else
-                                    <span class="badge bg-secondary">Tidak diketahui</span>
-                                @endif
-
-                            </td>
-
-                            <td>
-                                <a href="/anggota/riwayat/detail/{{ $d->id_peminjaman }}" class="btn btn-sm btn-info"
-                                    title="Detail">
-                                    <i class="ti ti-eye"></i>
-                                </a>
-                            </td>
-
-                        </tr>
-                    @endforeach
-
-                </tbody>
-
-            </table>
-
-        </div>
+        </table>
 
     </div>
+
+</div>
+
+{{-- MODAL --}}
+<div class="modal fade" id="modalAlasan" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content p-3">
+
+            <h5 class="mb-3 text-danger">Alasan Penolakan</h5>
+
+            <div id="isiAlasan"></div>
+
+            <div class="text-end mt-3">
+                <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
+                    Tutup
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
 @endsection
+
+
+@push('js')
+<script>
+function showAlasan(btn) {
+    let alasan = btn.getAttribute('data-alasan'); // 🔥 ambil dari attribute
+
+    document.getElementById('isiAlasan').innerText = alasan;
+
+    let modal = new bootstrap.Modal(document.getElementById('modalAlasan'));
+    modal.show();
+}
+</script>
+@endpush

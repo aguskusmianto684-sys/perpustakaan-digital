@@ -7,7 +7,6 @@
 @section('content')
     <div class="container">
 
-        {{-- 🔥 JUDUL --}}
         <h4 class="mb-4">
             <i class="ti ti-book"></i> Buku Saya
         </h4>
@@ -24,19 +23,20 @@
                         <th>Tanggal Kembali</th>
                         <th>Denda</th>
                         <th>Status</th>
-                        <th width="140">Aksi</th>
+                        <th width="160">Aksi</th>
                     </tr>
                 </thead>
 
                 <tbody>
 
                     @foreach ($data as $index => $d)
+
+                        @if(in_array($d->status, ['menunggu', 'dipinjam', 'menunggu pengembalian']))
+
                         <tr>
 
-                            {{-- NOMOR --}}
                             <td>{{ $index + 1 }}</td>
 
-                            {{-- BUKU --}}
                             <td>
                                 <div class="d-flex align-items-center gap-2">
                                     <img src="{{ asset('uploads/buku/' . $d->gambar) }}" width="40"
@@ -45,81 +45,45 @@
                                 </div>
                             </td>
 
-                            {{-- TANGGAL --}}
                             <td>{{ $d->tgl_pinjam }}</td>
                             <td>{{ $d->tgl_kembali }}</td>
 
-                            <td>
-                                @php
-                                    $denda = 0;
-                                    $hari = 0;
+                            <td>-</td>
 
-                                    // 🔥 hitung realtime kalau masih dipinjam & terlambat
-                                    if ($d->status == 'dipinjam' && now()->gt($d->tgl_kembali)) {
-                                        $hari = floor(\Carbon\Carbon::parse($d->tgl_kembali)->diffInDays(now()));
-
-                                        $denda = $hari * 1000;
-                                    } else {
-                                        $denda = $d->denda;
-                                    }
-                                @endphp
-
-                                @if ($denda > 0)
-                                    <span class="text-danger fw-semibold">
-                                        Rp {{ number_format($denda) }}
-                                    </span>
-                                    <br>
-                                    <small class="text-danger">
-                                        Terlambat {{ $hari }} hari
-                                    </small>
-                                @else
-                                    -
-                                @endif
-                            </td>
-
-                            {{-- STATUS --}}
                             <td>
 
-                                @if ($d->status == 'dipinjam' && now()->gt($d->tgl_kembali))
-                                    <span class="badge bg-danger">Terlambat</span>
-                                @elseif($d->status == 'dipinjam')
+                                @if($d->status == 'dipinjam')
                                     <span class="badge bg-primary">Dipinjam</span>
+
+                                    {{-- 🔥 JIKA PENGEMBALIAN DITOLAK --}}
+                                    @if($d->alasan)
+                                        <br>
+                                        <small class="text-danger">
+                                            Pengembalian ditolak: {{ $d->alasan }}
+                                        </small>
+                                    @endif
+
                                 @elseif($d->status == 'menunggu')
                                     <span class="badge bg-warning text-dark">Menunggu</span>
+
                                 @elseif($d->status == 'menunggu pengembalian')
                                     <span class="badge bg-info">Menunggu Konfirmasi</span>
-                                @elseif($d->status == 'ditolak')
-                                    <span class="badge bg-dark">Ditolak</span>
-                                @elseif($d->status == 'dikembalikan')
-                                    <span class="badge bg-success">Dikembalikan</span>
-                                @else
-                                    <span class="badge bg-secondary">Tidak diketahui</span>
                                 @endif
 
                             </td>
 
-                            {{-- 🔥 AKSI BARU (CLEAN + ICON) --}}
                             <td class="text-center">
 
                                 @if ($d->status == 'dipinjam')
-                                    <a href="/anggota/pengembalian/{{ $d->id_peminjaman }}" class="btn btn-sm btn-warning"
-                                        title="Ajukan Pengembalian"
+                                    <a href="/anggota/pengembalian/{{ $d->id_peminjaman }}"
+                                        class="btn btn-sm btn-warning"
                                         onclick="return confirm('Ajukan pengembalian buku ini?')">
-
-                                        <i class="ti ti-rotate"></i> Ajukan
+                                        Ajukan
                                     </a>
+
                                 @elseif($d->status == 'menunggu pengembalian')
-                                    <span class="badge bg-info">
-                                        <i class="ti ti-clock"></i> Menunggu
-                                    </span>
-                                @elseif($d->status == 'dikembalikan')
-                                    <span class="badge bg-success">
-                                        <i class="ti ti-check"></i> Selesai
-                                    </span>
-                                @elseif($d->status == 'ditolak')
-                                    <span class="badge bg-danger">
-                                        <i class="ti ti-x"></i> Ditolak
-                                    </span>
+                                    <span class="badge bg-info">Menunggu</span>
+
                                 @else
                                     <span class="text-muted">-</span>
                                 @endif
@@ -127,6 +91,9 @@
                             </td>
 
                         </tr>
+
+                        @endif
+
                     @endforeach
 
                 </tbody>
@@ -137,13 +104,3 @@
 
     </div>
 @endsection
-
-
-{{-- 🔥 STYLE TAMBAHAN --}}
-@push('css')
-    <style>
-        .btn-sm i {
-            font-size: 14px;
-        }
-    </style>
-@endpush

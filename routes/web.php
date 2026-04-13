@@ -98,6 +98,9 @@ Route::middleware(['auth', 'role:anggota'])->group(function () {
 // semua route petugas menggunakan middleware auth dan role petugas
 Route::middleware(['auth', 'role:petugas'])->group(function () {
 
+
+    Route::get('/petugas/peminjaman/bayar/{id}', [PeminjamanController::class, 'bayar']);
+
     // dashboard & profile petugas
     Route::get('/petugas/dashboard', [PetugasDashboardController::class, 'index']);
     Route::get('/petugas/profile', [PetugasDashboardController::class, 'profile']);
@@ -116,10 +119,11 @@ Route::middleware(['auth', 'role:petugas'])->group(function () {
     Route::get('/petugas/peminjaman/create', [PeminjamanController::class, 'create']);
     Route::post('/petugas/peminjaman/store', [PeminjamanController::class, 'store']);
     Route::get('/petugas/peminjaman/konfirmasi/{id}', [PeminjamanController::class, 'konfirmasi']);
-    Route::get('/petugas/peminjaman/tolak/{id}', [PeminjamanController::class, 'tolak']);
     Route::get('/petugas/peminjaman/kembalikan/{id}', [PeminjamanController::class, 'kembalikan']);
-    Route::get('/petugas/peminjaman/tolak-pengembalian/{id}', [PeminjamanController::class, 'tolakPengembalian']);
     Route::get('/petugas/peminjaman/detail/{id}', [PeminjamanController::class, 'detail']);
+    Route::get('/petugas/peminjaman/tolak/{id}/{alasan}', [PeminjamanController::class, 'tolak']);
+    Route::get('/petugas/peminjaman/tolak-pengembalian/{id}/{alasan}', [PeminjamanController::class, 'tolakPengembalian']);
+    Route::get('/petugas/peminjaman/konfirmasi-pengembalian/{id}', [PeminjamanController::class, 'konfirmasiPengembalian']);
 
     // halaman riwayat peminjaman
     Route::get(

@@ -3,11 +3,11 @@
 @section('sidebar')
     @include('layouts.partials.sidebar-petugas')
 @endsection
+
 @section('content')
     <div class="card">
         <div class="card-body">
 
-            {{-- judul --}}
             <h4 class="mb-3">
                 <i class="ti ti-history"></i> Riwayat Peminjaman
             </h4>
@@ -16,7 +16,6 @@
 
                 <table id="laporanTable" class="table table-bordered table-hover align-middle">
 
-                    {{-- header --}}
                     <thead class="table-light">
                         <tr>
                             <th>No</th>
@@ -33,32 +32,15 @@
                     <tbody>
 
                         @foreach ($data as $index => $d)
-                            @php
-                                $denda = 0;
-                                $terlambat = 0;
-
-                                if ($d->tgl_dikembalikan && $d->tgl_dikembalikan > $d->tgl_kembali) {
-                                    $terlambat = \Carbon\Carbon::parse($d->tgl_kembali)->diffInDays(
-                                        $d->tgl_dikembalikan,
-                                    );
-
-                                    $denda = $terlambat * 1000;
-                                }
-                            @endphp
-
                             <tr>
 
-                                {{-- nomor --}}
                                 <td>{{ $index + 1 }}</td>
 
-                                {{-- ✅ RELASI --}}
                                 <td>{{ $d->anggota->nama ?? '-' }}</td>
                                 <td>{{ $d->buku->judul ?? '-' }}</td>
 
-                                {{-- tanggal pinjam --}}
                                 <td>{{ $d->tgl_pinjam }}</td>
 
-                                {{-- tanggal kembali --}}
                                 <td>
                                     {{ $d->tgl_dikembalikan ?? '-' }}
                                     <br>
@@ -67,33 +49,52 @@
                                     </small>
                                 </td>
 
-                                {{-- denda --}}
+                                {{-- DENDA --}}
                                 <td>
-                                    @if ($denda > 0)
-                                        <span class="text-danger">
-                                            Rp {{ number_format($denda) }}
-                                        </span>
-                                        <br>
-                                        <small class="text-danger">
-                                            Terlambat {{ $terlambat }} hari
-                                        </small>
+                                    @php
+                                        $dendaAsli = $d->pengembalian->denda ?? 0;
+                                    @endphp
+
+                                    @if ($d->status == 'dikembalikan')
+                                        @if ($dendaAsli > 0)
+                                            <span class="text-danger">
+                                                Rp {{ number_format($dendaAsli) }}
+                                            </span>
+                                            <br>
+
+                                            @if ($d->denda == 0)
+                                                <small class="text-success">
+                                                    Sudah lunas
+                                                </small>
+                                            @else
+                                                <small class="text-warning">
+                                                    Belum dibayar
+                                                </small>
+                                            @endif
+                                        @else
+                                            <span class="text-success">
+                                                Tidak ada denda
+                                            </span>
+                                        @endif
                                     @else
                                         -
                                     @endif
                                 </td>
 
-                                {{-- status --}}
+                                {{-- STATUS --}}
                                 <td>
 
                                     @if ($d->status == 'ditolak')
                                         <span class="badge bg-dark">Ditolak</span>
                                     @elseif($d->status == 'dikembalikan')
-                                        @if ($denda > 0)
+                                        @if ($d->denda > 0)
                                             <span class="badge bg-danger">Terlambat</span>
                                             <br>
-                                            <small class="text-danger">Sudah dikembalikan</small>
+                                            <small class="text-danger">Belum dibayar</small>
                                         @else
-                                            <span class="badge bg-success">Tepat Waktu</span>
+                                            <span class="badge bg-success">Selesai</span>
+                                            <br>
+                                            <small class="text-success">Sudah lunas</small>
                                         @endif
                                     @else
                                         <span class="badge bg-secondary">Belum Selesai</span>
@@ -107,7 +108,6 @@
                                         <i class="ti ti-eye"></i>
                                     </a>
                                 </td>
-
 
                             </tr>
                         @endforeach

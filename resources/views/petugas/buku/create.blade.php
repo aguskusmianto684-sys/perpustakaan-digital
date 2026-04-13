@@ -38,15 +38,33 @@
                         <input type="number" name="tahun_terbit" class="form-control" placeholder="Contoh: 2005">
                     </div>
 
+                    {{-- 🔥 KATEGORI + SEARCH --}}
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Kategori</label>
-                        <select name="kategori" class="form-control">
+                        <select name="kategori" class="form-control select2" required>
                             <option value="">-- Pilih Kategori --</option>
+
                             <option value="Novel">Novel</option>
-                            <option value="Pendidikan">Pendidikan</option>
+                            <option value="Cerpen">Cerpen</option>
                             <option value="Komik">Komik</option>
+                            <option value="Biografi">Biografi</option>
                             <option value="Sejarah">Sejarah</option>
+                            <option value="Pendidikan">Pendidikan</option>
+                            <option value="Sains">Sains</option>
                             <option value="Teknologi">Teknologi</option>
+                            <option value="Agama">Agama</option>
+                            <option value="Kesehatan">Kesehatan</option>
+                            <option value="Ekonomi">Ekonomi</option>
+                            <option value="Bisnis">Bisnis</option>
+                            <option value="Motivasi">Motivasi</option>
+                            <option value="Psikologi">Psikologi</option>
+                            <option value="Fiksi">Fiksi</option>
+                            <option value="Non-Fiksi">Non-Fiksi</option>
+                            <option value="Anak-anak">Anak-anak</option>
+                            <option value="Remaja">Remaja</option>
+                            <option value="Ensiklopedia">Ensiklopedia</option>
+                            <option value="Bahasa">Bahasa</option>
+
                         </select>
                     </div>
 
@@ -84,3 +102,15 @@
         </div>
     </div>
 @endsection
+
+{{-- 🔥 SCRIPT SELECT2 --}}
+@push('js')
+<script>
+    $(document).ready(function () {
+        $('.select2').select2({
+            placeholder: "-- Pilih Kategori --",
+            allowClear: true
+        });
+    });
+</script>
+@endpush

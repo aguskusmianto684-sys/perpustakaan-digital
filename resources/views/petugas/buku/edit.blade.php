@@ -40,14 +40,29 @@
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Kategori</label>
 
-                        <select name="kategori" class="form-control" required>
+                        <select name="kategori" class="form-control select2" required>
                             <option value="">-- Pilih Kategori --</option>
 
-                            @foreach ($kategori as $k)
-                                <option value="{{ $k }}" {{ $buku->kategori == $k ? 'selected' : '' }}>
-                                    {{ $k }}
-                                </option>
-                            @endforeach
+                            <option value="Novel" {{ $buku->kategori == 'Novel' ? 'selected' : '' }}>Novel</option>
+                            <option value="Cerpen" {{ $buku->kategori == 'Cerpen' ? 'selected' : '' }}>Cerpen</option>
+                            <option value="Komik" {{ $buku->kategori == 'Komik' ? 'selected' : '' }}>Komik</option>
+                            <option value="Biografi" {{ $buku->kategori == 'Biografi' ? 'selected' : '' }}>Biografi</option>
+                            <option value="Sejarah" {{ $buku->kategori == 'Sejarah' ? 'selected' : '' }}>Sejarah</option>
+                            <option value="Pendidikan" {{ $buku->kategori == 'Pendidikan' ? 'selected' : '' }}>Pendidikan</option>
+                            <option value="Sains" {{ $buku->kategori == 'Sains' ? 'selected' : '' }}>Sains</option>
+                            <option value="Teknologi" {{ $buku->kategori == 'Teknologi' ? 'selected' : '' }}>Teknologi</option>
+                            <option value="Agama" {{ $buku->kategori == 'Agama' ? 'selected' : '' }}>Agama</option>
+                            <option value="Kesehatan" {{ $buku->kategori == 'Kesehatan' ? 'selected' : '' }}>Kesehatan</option>
+                            <option value="Ekonomi" {{ $buku->kategori == 'Ekonomi' ? 'selected' : '' }}>Ekonomi</option>
+                            <option value="Bisnis" {{ $buku->kategori == 'Bisnis' ? 'selected' : '' }}>Bisnis</option>
+                            <option value="Motivasi" {{ $buku->kategori == 'Motivasi' ? 'selected' : '' }}>Motivasi</option>
+                            <option value="Psikologi" {{ $buku->kategori == 'Psikologi' ? 'selected' : '' }}>Psikologi</option>
+                            <option value="Fiksi" {{ $buku->kategori == 'Fiksi' ? 'selected' : '' }}>Fiksi</option>
+                            <option value="Non-Fiksi" {{ $buku->kategori == 'Non-Fiksi' ? 'selected' : '' }}>Non-Fiksi</option>
+                            <option value="Anak-anak" {{ $buku->kategori == 'Anak-anak' ? 'selected' : '' }}>Anak-anak</option>
+                            <option value="Remaja" {{ $buku->kategori == 'Remaja' ? 'selected' : '' }}>Remaja</option>
+                            <option value="Ensiklopedia" {{ $buku->kategori == 'Ensiklopedia' ? 'selected' : '' }}>Ensiklopedia</option>
+                            <option value="Bahasa" {{ $buku->kategori == 'Bahasa' ? 'selected' : '' }}>Bahasa</option>
 
                         </select>
                     </div>
@@ -91,3 +106,15 @@
         </div>
     </div>
 @endsection
+
+
+@push('js')
+<script>
+    $(document).ready(function () {
+        $('.select2').select2({
+            placeholder: "-- Pilih Kategori --",
+            allowClear: true
+        });
+    });
+</script>
+@endpush

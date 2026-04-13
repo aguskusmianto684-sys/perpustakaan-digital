@@ -17,13 +17,11 @@
 
                 <div class="row">
 
-                    {{-- 🔥 GAMBAR BUKU --}}
                     <div class="col-md-3 text-center">
                         <img src="{{ asset('uploads/buku/' . ($data->buku->gambar ?? 'default.png')) }}"
                             class="img-fluid rounded" style="height:200px; object-fit:cover;">
                     </div>
 
-                    {{-- 🔥 DETAIL --}}
                     <div class="col-md-9">
 
                         <table class="table">
@@ -43,7 +41,7 @@
                                 <td>{{ $data->tgl_kembali }}</td>
                             </tr>
 
-                            {{-- 🔥 STATUS --}}
+                            {{-- STATUS --}}
                             <tr>
                                 <th>Status</th>
                                 <td>
@@ -61,48 +59,64 @@
                                 </td>
                             </tr>
 
-                            {{-- 🔥 DENDA --}}
+                            {{-- 🔥 DENDA FINAL --}}
                             <tr>
                                 <th>Denda</th>
                                 <td>
 
                                     @php
-                                        $denda = 0;
-                                        $hari = 0;
+                                        $dendaAsli = $data->pengembalian->denda ?? 0;
+                                    @endphp
 
-                                        if ($data->status == 'dikembalikan' && $data->tgl_dikembalikan) {
-                                            if ($data->tgl_dikembalikan > $data->tgl_kembali) {
-                                                $hari = \Carbon\Carbon::parse($data->tgl_kembali)
-                                                    ->startOfDay()
-                                                    ->diffInDays(
-                                                        \Carbon\Carbon::parse($data->tgl_dikembalikan)->startOfDay(),
-                                                    );
+                                    {{-- SUDAH DIKEMBALIKAN --}}
+                                    @if ($data->status == 'dikembalikan')
 
-                                                $denda = $hari * 1000;
-                                            }
-                                        } elseif ($data->status == 'dipinjam' && now()->gt($data->tgl_kembali)) {
+                                        @if ($dendaAsli > 0)
+
+                                            <span class="text-danger fw-semibold">
+                                                Rp {{ number_format($dendaAsli) }}
+                                            </span>
+                                            <br>
+
+                                            @if ($data->denda == 0)
+                                                <small class="text-success">
+                                                    ✔ Sudah Lunas
+                                                </small>
+                                            @else
+                                                <small class="text-warning">
+                                                    Belum Dibayar
+                                                </small>
+                                            @endif
+
+                                        @else
+                                            <span class="text-success">
+                                                Tidak ada denda (Tepat Waktu)
+                                            </span>
+                                        @endif
+
+                                    {{-- MASIH DIPINJAM & TELAT --}}
+                                    @elseif ($data->status == 'dipinjam' && now()->gt($data->tgl_kembali))
+
+                                        @php
                                             $hari = \Carbon\Carbon::parse($data->tgl_kembali)
                                                 ->startOfDay()
                                                 ->diffInDays(now()->startOfDay());
 
                                             $denda = $hari * 1000;
-                                        }
-                                    @endphp
+                                        @endphp
 
-                                    @if ($denda > 0)
                                         <span class="text-danger fw-semibold">
                                             Rp {{ number_format($denda) }}
                                         </span>
+                                        <br>
+                                        <small class="text-danger">
+                                            Terlambat {{ $hari }} hari
+                                        </small>
 
-                                        @if ($data->status == 'dikembalikan')
-                                            <br>
-                                            <small class="text-success">✔ Sudah dibayar</small>
-                                        @else
-                                            <br>
-                                            <small class="text-danger">Terlambat {{ $hari }} hari</small>
-                                        @endif
                                     @else
-                                        <span class="text-success">Tidak ada denda</span>
+                                        <span class="text-success">
+                                            Tidak ada denda
+                                        </span>
                                     @endif
 
                                 </td>
@@ -110,7 +124,6 @@
 
                         </table>
 
-                        {{-- 🔙 BUTTON --}}
                         <a href="/anggota/riwayat" class="btn btn-secondary">
                             ← Kembali
                         </a>

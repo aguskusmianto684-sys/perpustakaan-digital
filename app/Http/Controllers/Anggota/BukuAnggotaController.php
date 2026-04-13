@@ -200,12 +200,14 @@ class BukuAnggotaController extends Controller
         // ambil data peminjaman + join ke tabel buku
         $data = Peminjaman::join('buku', 'peminjaman.id_buku', '=', 'buku.id_buku')
             ->where('peminjaman.id_anggota', $anggota->id_anggota)
-            ->whereIn('peminjaman.status', ['menunggu', 'dipinjam'])
+
+            // 🔥 INI YANG DIPERBAIKI
+            ->whereIn('peminjaman.status', ['menunggu', 'dipinjam', 'menunggu pengembalian'])
+
             ->select('peminjaman.*', 'buku.judul', 'buku.gambar')
             ->orderBy('peminjaman.tgl_pinjam', 'desc')
             ->get();
 
-        // kirim ke view
         return view('anggota.peminjaman.index', compact('data'));
     }
 

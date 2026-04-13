@@ -24,7 +24,8 @@ class Peminjaman extends Model
         'tgl_kembali',
         'tgl_dikembalikan',
         'status',
-        'denda' // menyimpan denda keterlambatan
+        'denda',
+        'alasan' // menyimpan denda keterlambatan
     ];
 
     // relasi ke anggota (satu peminjaman dimiliki satu anggota)
