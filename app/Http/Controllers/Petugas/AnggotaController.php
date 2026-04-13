@@ -16,10 +16,12 @@ class AnggotaController extends Controller
     // Cek login dan role petugas
     public function __construct()
     {
+        // cek apakah user sudah login
         if (!Auth::check()) {
             redirect('/login')->with('error', 'Silakan login terlebih dahulu')->send();
         }
 
+        // cek apakah user memiliki role petugas
         if (Auth::user()->role != 'petugas') {
             redirect('/login')->with('error', 'Silakan login terlebih dahulu')->send();
         }
@@ -28,23 +30,23 @@ class AnggotaController extends Controller
     // Menampilkan semua data anggota
     public function index()
     {
-        // Urutkan terbaru di atas
+        // mengambil semua data anggota dan diurutkan terbaru
         $anggota = Anggota::orderBy('id_anggota', 'desc')->get();
 
+        // kirim data ke view
         return view('petugas.anggota.index', compact('anggota'));
     }
 
     // Tampilkan form tambah anggota
     public function create()
     {
+        // menampilkan halaman form tambah anggota
         return view('petugas.anggota.create');
     }
 
-
-
     public function store(Request $request)
     {
-        // Validasi data tidak boleh duplikat
+        // validasi input agar tidak duplikat
         $request->validate([
             'username' => 'required|unique:users,username',
             'password' => 'required|min:4',
@@ -55,14 +57,14 @@ class AnggotaController extends Controller
             'email.unique' => 'Email sudah digunakan'
         ]);
 
-        // 🔥 simpan ke tabel users
+        // simpan data ke tabel users
         $user = User::create([
             'username' => $request->username,
-            'password' => bcrypt($request->password),
+            'password' => bcrypt($request->password), // enkripsi password
             'role' => 'anggota'
         ]);
 
-        // 🔥 simpan ke tabel anggota
+        // simpan data ke tabel anggota
         Anggota::create([
             'id_user' => $user->id_user,
             'nama' => $request->nama,
@@ -80,43 +82,51 @@ class AnggotaController extends Controller
     // Detail anggota + peminjaman aktif
     public function detail($id)
     {
+        // ambil data anggota berdasarkan id
         $anggota = Anggota::find($id);
 
+        // ambil data peminjaman aktif milik anggota
         $peminjaman = Peminjaman::with('buku')
             ->where('id_anggota', $id)
-            ->whereIn('status', ['dipinjam', 'menunggu pengembalian']) // 🔥 FIX
+            ->whereIn('status', ['dipinjam', 'menunggu pengembalian']) // hanya status aktif
             ->orderBy('tgl_pinjam', 'desc')
             ->get();
 
+        // kirim data ke view
         return view('petugas.anggota.detail', compact('anggota', 'peminjaman'));
     }
 
     public function edit($id)
     {
+        // ambil data anggota + username dari tabel users
         $anggota = Anggota::leftJoin('users', 'anggota.id_user', '=', 'users.id_user')
             ->where('anggota.id_anggota', $id)
             ->select('anggota.*', 'users.username')
             ->first();
 
+        // jika data tidak ditemukan
         if (!$anggota) {
             return redirect('/petugas/anggota')
                 ->with('error', 'Data anggota tidak ditemukan');
         }
 
+        // tampilkan form edit
         return view('petugas.anggota.edit', compact('anggota'));
     }
 
     // Update data anggota
     public function update(Request $request, $id)
     {
+        // ambil data anggota
         $anggota = Anggota::find($id);
 
+        // jika tidak ditemukan
         if (!$anggota) {
             return redirect('/petugas/anggota')
                 ->with('error', 'Data anggota tidak ditemukan');
         }
 
-        // validasi username + email tidak duplikat
+        // validasi agar username dan email tetap unik
         $request->validate([
             'username' => 'required|unique:users,username,' . $anggota->id_user . ',id_user',
             'email' => 'required|email|unique:anggota,email,' . $id . ',id_anggota'
@@ -139,7 +149,7 @@ class AnggotaController extends Controller
                 ]);
         }
 
-        // update anggota
+        // update data anggota
         $anggota->update([
             'nama' => $request->nama,
             'alamat' => $request->alamat,
@@ -153,36 +163,39 @@ class AnggotaController extends Controller
             ->with('success', 'Data anggota berhasil diupdate');
     }
 
-    // Hapus anggota (sudah aman FK)
+    // Hapus anggota
     public function delete($id)
     {
+        // ambil data anggota
         $anggota = Anggota::find($id);
 
+        // jika tidak ditemukan
         if (!$anggota) {
             return redirect('/petugas/anggota')
                 ->with('error', 'Data anggota tidak ditemukan');
         }
 
-        // cek peminjaman aktif
+        // cek apakah masih ada buku yang dipinjam
         $cek = Peminjaman::where('id_anggota', $id)
             ->where('status', 'dipinjam')
             ->count();
 
+        // jika masih ada pinjaman aktif
         if ($cek > 0) {
             return redirect('/petugas/anggota')
                 ->with('error', 'Anggota masih memiliki buku yang dipinjam');
         }
 
-        // hapus riwayat peminjaman
+        // hapus semua riwayat peminjaman
         Peminjaman::where('id_anggota', $id)->delete();
 
-        // 🔥 simpan id_user dulu
+        // simpan id_user sebelum dihapus
         $idUser = $anggota->id_user;
 
-        // hapus anggota
+        // hapus data anggota
         $anggota->delete();
 
-        // 🔥 hapus user terkait
+        // hapus user terkait jika ada
         if ($idUser) {
             User::where('id_user', $idUser)->delete();
         }

@@ -21,12 +21,12 @@ class PeminjamanController extends Controller
      */
     public function __construct()
     {
-        // Cek apakah user sudah login
+        // cek apakah user sudah login
         if (!Auth::check()) {
             redirect('/login')->with('error', 'Silakan login terlebih dahulu')->send();
         }
 
-        // Cek apakah user adalah petugas
+        // cek apakah user memiliki role petugas
         if (Auth::user()->role != 'petugas') {
             redirect('/login')->with('error', 'Silakan login terlebih dahulu')->send();
         }
@@ -37,12 +37,12 @@ class PeminjamanController extends Controller
      */
     public function index()
     {
-        // Ambil data peminjaman pakai relasi
+        // ambil data peminjaman dengan relasi anggota dan buku
         $peminjaman = Peminjaman::with(['anggota', 'buku'])
-            ->latest('tgl_pinjam')
+            ->latest('tgl_pinjam') // urutkan dari terbaru
             ->get();
 
-        // Tampilkan ke view
+        // tampilkan ke view
         return view('petugas.peminjaman.index', compact('peminjaman'));
     }
 
@@ -51,22 +51,24 @@ class PeminjamanController extends Controller
      */
     public function create()
     {
-        // Ambil semua data anggota tersedia
+        // ambil semua anggota
         $anggota = Anggota::all();
 
-        // Ambil buku yang stok masih tersedia
+        // ambil buku yang stoknya masih tersedia
         $buku = Buku::where('stok', '>', 0)->get();
 
-        // Tampilkan halaman form peminjaman baru
+        // tampilkan form
         return view('petugas.peminjaman.create', compact('anggota', 'buku'));
     }
 
     public function detail($id)
     {
+        // ambil detail peminjaman berdasarkan id
         $data = \App\Models\Peminjaman::with(['anggota', 'buku'])
             ->where('id_peminjaman', $id)
             ->first();
 
+        // tampilkan ke view
         return view('petugas.peminjaman.detail', compact('data'));
     }
 
@@ -75,24 +77,25 @@ class PeminjamanController extends Controller
      */
     public function store(Request $request)
     {
-        // Ambil petugas dari relasi user login
+        // ambil data petugas dari user login
         $petugas = Auth::user()->petugas;
 
+        // jika petugas tidak ditemukan
         if (!$petugas) {
             return back()->with('error', 'Petugas tidak ditemukan');
         }
 
-        // Simpan peminjaman
+        // simpan data peminjaman
         Peminjaman::create([
             'id_anggota' => $request->id_anggota,
             'id_buku' => $request->id_buku,
             'id_petugas' => $petugas->id_petugas,
             'tgl_pinjam' => now(),
-            'tgl_kembali' => now()->addDays(7),
+            'tgl_kembali' => now()->addDays(7), // batas 7 hari
             'status' => 'dipinjam'
         ]);
 
-        // Kurangi stok buku
+        // kurangi stok buku
         Buku::where('id_buku', $request->id_buku)->decrement('stok');
 
         return redirect('/petugas/peminjaman')
@@ -104,24 +107,23 @@ class PeminjamanController extends Controller
      */
     public function konfirmasi($id)
     {
-        // Ambil data peminjaman
+        // ambil data peminjaman
         $pinjam = Peminjaman::find($id);
 
+        // jika tidak ditemukan
         if (!$pinjam) {
             return back()->with('error', 'Data tidak ditemukan');
         }
 
-        // 🔥 ambil petugas login
+        // ambil petugas login
         $petugas = Petugas::where('id_user', Auth::user()->id_user)->first();
 
+        // jika petugas tidak ditemukan
         if (!$petugas) {
             return back()->with('error', 'Petugas tidak ditemukan');
         }
 
-        // 🔥 TIDAK CEK STOK LAGI
-        // 🔥 TIDAK KURANGI STOK LAGI
-
-        // update status saja
+        // update status menjadi dipinjam dan set petugas
         $pinjam->update([
             'status' => 'dipinjam',
             'id_petugas' => $petugas->id_petugas
@@ -133,22 +135,26 @@ class PeminjamanController extends Controller
     // proses tolak peminjaman buku
     public function tolak($id)
     {
+        // ambil data peminjaman
         $peminjaman = Peminjaman::find($id);
 
+        // jika tidak ditemukan
         if (!$peminjaman) {
             return back()->with('error', 'Data tidak ditemukan');
         }
 
+        // hanya bisa ditolak jika status menunggu
         if ($peminjaman->status != 'menunggu') {
             return back()->with('error', 'Tidak bisa menolak');
         }
 
+        // ambil petugas login
         $petugas = Auth::user()->petugas;
 
-        // 🔥 BALIKIN STOK BUKU
+        // kembalikan stok buku
         Buku::where('id_buku', $peminjaman->id_buku)->increment('stok');
 
-        // update status
+        // update status menjadi ditolak
         $peminjaman->update([
             'status' => 'ditolak',
             'id_petugas' => $petugas->id_petugas
@@ -160,48 +166,50 @@ class PeminjamanController extends Controller
     /**
      * Proses pengembalian buku oleh anggota
      */
-
-
     public function kembalikan($id)
     {
+        // ambil data peminjaman
         $pinjam = Peminjaman::find($id);
 
+        // jika tidak ditemukan
         if (!$pinjam) {
             return back()->with('error', 'Data tidak ditemukan');
         }
 
-        // ❌ cegah double return
+        // cegah pengembalian dua kali
         if ($pinjam->status == 'dikembalikan') {
             return back()->with('error', 'Buku sudah dikembalikan');
         }
 
-        // 🔥 tambah stok buku
+        // tambah stok buku
         Buku::where('id_buku', $pinjam->id_buku)->increment('stok');
 
-        // 🔥 tanggal tanpa jam
+        // ambil tanggal hari ini tanpa jam
         $today = Carbon::now()->startOfDay();
+
+        // ambil batas pengembalian
         $batas = Carbon::parse($pinjam->tgl_kembali)->startOfDay();
 
         $denda = 0;
         $hariTerlambat = 0;
         $statusPengembalian = 'tepat waktu';
 
-        // 🔥 HITUNG DENDA (WAJIB)
+        // hitung denda jika terlambat
         if ($today->gt($batas)) {
 
             $hariTerlambat = $batas->diffInDays($today);
 
-            $denda = $hariTerlambat * 1000;
+            $denda = $hariTerlambat * 1000; // denda per hari
             $statusPengembalian = 'terlambat';
         }
 
-        // 🔥 UPDATE PEMINJAMAN (PASTI MASUK DB)
+        // update data peminjaman
         $pinjam->status = 'dikembalikan';
         $pinjam->tgl_dikembalikan = $today;
         $pinjam->denda = $denda;
-        $pinjam->save(); // 🔥 pakai save biar lebih pasti
+        $pinjam->save();
 
-        // 🔥 SIMPAN RIWAYAT PENGEMBALIAN
+        // simpan ke tabel pengembalian
         Pengembalian::create([
             'id_peminjaman' => $pinjam->id_peminjaman,
             'tgl_pengembalian' => $today,
@@ -214,13 +222,15 @@ class PeminjamanController extends Controller
 
     public function tolakPengembalian($id)
     {
+        // ambil data peminjaman
         $pinjam = Peminjaman::find($id);
 
+        // jika tidak ditemukan
         if (!$pinjam) {
             return back()->with('error', 'Data tidak ditemukan');
         }
 
-        // hanya bisa ditolak kalau statusnya menunggu pengembalian
+        // hanya bisa ditolak jika status menunggu pengembalian
         if ($pinjam->status != 'menunggu pengembalian') {
             return back()->with('error', 'Tidak bisa menolak');
         }
@@ -234,28 +244,28 @@ class PeminjamanController extends Controller
     }
 
     /**
-     * Menampilkan riwayat peminjaman sudah dikembalikan
+     * Menampilkan riwayat peminjaman
      */
-    // 🔥 RIWAYAT
     public function riwayat()
     {
+        // ambil data peminjaman yang sudah selesai
         $data = Peminjaman::with(['anggota', 'buku'])
             ->whereIn('status', ['dikembalikan', 'ditolak'])
             ->orderBy('tgl_pinjam', 'desc')
             ->get();
 
-        return view('petugas.riwayat.index', compact('data')); // ✅ FIX
+        return view('petugas.riwayat.index', compact('data'));
     }
 
-
-    // 🔥 DETAIL RIWAYAT
+    // detail riwayat peminjaman
     public function detailRiwayat($id)
     {
+        // ambil detail riwayat
         $data = Peminjaman::with(['anggota', 'buku'])
             ->where('id_peminjaman', $id)
             ->first();
 
-        return view('petugas.riwayat.detail', compact('data')); // ✅ SUDAH BENAR
+        return view('petugas.riwayat.detail', compact('data'));
     }
 
     /**
@@ -263,7 +273,7 @@ class PeminjamanController extends Controller
      */
     public function kepala()
     {
-        // Ambil data peminjaman lengkap untuk kepala
+        // ambil data peminjaman lengkap dengan join
         $peminjaman = Peminjaman::join('anggota', 'peminjaman.id_anggota', '=', 'anggota.id_anggota')
             ->join('buku', 'peminjaman.id_buku', '=', 'buku.id_buku')
             ->leftJoin('petugas', 'peminjaman.id_petugas', '=', 'petugas.id_petugas')
@@ -276,16 +286,15 @@ class PeminjamanController extends Controller
             ->orderBy('peminjaman.tgl_pinjam', 'desc')
             ->get();
 
-        // Tampilkan data peminjaman ke kepala
         return view('kepala.peminjaman.index', compact('peminjaman'));
     }
 
     /**
-     * Menampilkan detail data peminjaman untuk kepala
+     * Detail peminjaman untuk kepala
      */
     public function detailKepala($id)
     {
-        // Ambil satu data peminjaman lengkap
+        // ambil detail peminjaman lengkap
         $data = Peminjaman::join('anggota', 'peminjaman.id_anggota', '=', 'anggota.id_anggota')
             ->join('buku', 'peminjaman.id_buku', '=', 'buku.id_buku')
             ->leftJoin('petugas', 'peminjaman.id_petugas', '=', 'petugas.id_petugas')
@@ -298,7 +307,6 @@ class PeminjamanController extends Controller
             ->where('peminjaman.id_peminjaman', $id)
             ->first();
 
-        // Tampilkan detail peminjaman ke halaman
         return view('kepala.peminjaman.detail', compact('data'));
     }
 
@@ -307,7 +315,7 @@ class PeminjamanController extends Controller
      */
     public function laporanKepala()
     {
-        // Ambil data laporan peminjaman sudah selesai
+        // ambil data peminjaman yang sudah dikembalikan
         $data = Peminjaman::join('anggota', 'peminjaman.id_anggota', '=', 'anggota.id_anggota')
             ->join('buku', 'peminjaman.id_buku', '=', 'buku.id_buku')
             ->leftJoin('petugas', 'peminjaman.id_petugas', '=', 'petugas.id_petugas')
@@ -321,7 +329,6 @@ class PeminjamanController extends Controller
             ->orderBy('peminjaman.tgl_pinjam', 'desc')
             ->get();
 
-        // Tampilkan laporan peminjaman ke halaman
         return view('kepala.laporan.index', compact('data'));
     }
 }

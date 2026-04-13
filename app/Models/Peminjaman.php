@@ -6,12 +6,16 @@ use Illuminate\Database\Eloquent\Model;
 
 class Peminjaman extends Model
 {
+    // menentukan nama tabel di database
     protected $table = 'peminjaman';
 
+    // menentukan primary key
     protected $primaryKey = 'id_peminjaman';
 
+    // menonaktifkan timestamps
     public $timestamps = false;
 
+    // field yang boleh diisi (mass assignment)
     protected $fillable = [
         'id_anggota',
         'id_buku',
@@ -20,28 +24,28 @@ class Peminjaman extends Model
         'tgl_kembali',
         'tgl_dikembalikan',
         'status',
-        'denda' // 🔥 TAMBAH INI
+        'denda' // menyimpan denda keterlambatan
     ];
 
-    // Relasi ke anggota
+    // relasi ke anggota (satu peminjaman dimiliki satu anggota)
     public function anggota()
     {
         return $this->belongsTo(Anggota::class, 'id_anggota', 'id_anggota');
     }
 
-    // Relasi ke buku
+    // relasi ke buku (satu peminjaman untuk satu buku)
     public function buku()
     {
         return $this->belongsTo(Buku::class, 'id_buku', 'id_buku');
     }
 
-    // Relasi ke petugas
+    // relasi ke petugas (peminjaman diproses oleh petugas)
     public function petugas()
     {
         return $this->belongsTo(Petugas::class, 'id_petugas', 'id_petugas');
     }
 
-    // 🔥 RELASI KE PENGEMBALIAN (WAJIB)
+    // relasi ke pengembalian (satu peminjaman memiliki satu data pengembalian)
     public function pengembalian()
     {
         return $this->hasOne(Pengembalian::class, 'id_peminjaman');

@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
+// route halaman awal (welcome)
 Route::get('/', function () {
     return view('welcome');
 });
@@ -27,10 +28,17 @@ Route::get('/', function () {
 | AUTH (LOGIN & REGISTER)
 |--------------------------------------------------------------------------
 */
+
+// menampilkan halaman login
 Route::get('/login', [LoginController::class, 'showLogin'])->name('login');
+
+// proses login
 Route::post('/login', [LoginController::class, 'login']);
 
+// menampilkan halaman register
 Route::get('/register', [LoginController::class, 'showRegister']);
+
+// proses register
 Route::post('/register', [LoginController::class, 'register']);
 
 /*
@@ -38,6 +46,8 @@ Route::post('/register', [LoginController::class, 'register']);
 | LOGOUT
 |--------------------------------------------------------------------------
 */
+
+// proses logout user
 Route::post('/logout', function () {
     \Illuminate\Support\Facades\Auth::logout();
 
@@ -50,28 +60,30 @@ Route::post('/logout', function () {
 
 /*
 |--------------------------------------------------------------------------
-| 🔥 ROUTE ANGGOTA
+| ROUTE ANGGOTA
 |--------------------------------------------------------------------------
 */
+
+// semua route anggota menggunakan middleware auth dan role anggota
 Route::middleware(['auth', 'role:anggota'])->group(function () {
 
-    // Dashboard & Profile
+    // dashboard & profile anggota
     Route::get('/anggota/dashboard', [AnggotaDashboardController::class, 'index']);
     Route::get('/anggota/profile', [AnggotaDashboardController::class, 'profile']);
 
-    // Buku
+    // halaman buku anggota
     Route::get('/anggota/buku', [BukuAnggotaController::class, 'index']);
     Route::get('/anggota/buku/detail/{id}', [BukuAnggotaController::class, 'detail']);
 
-    // Peminjaman
+    // proses peminjaman
     Route::get('/anggota/pinjam/{id}', [BukuAnggotaController::class, 'formPinjam']);
     Route::post('/anggota/pinjam/store', [BukuAnggotaController::class, 'storePinjam']);
 
-    // Data peminjaman
+    // data peminjaman anggota
     Route::get('/anggota/peminjaman', [BukuAnggotaController::class, 'peminjamanSaya']);
     Route::get('/anggota/pengembalian/{id}', [BukuAnggotaController::class, 'ajukanPengembalian']);
 
-    // Riwayat
+    // riwayat peminjaman
     Route::get('/anggota/riwayat', [BukuAnggotaController::class, 'riwayat']);
     Route::get('/anggota/riwayat/detail/{id}', [BukuAnggotaController::class, 'detailPeminjaman']);
 });
@@ -79,16 +91,18 @@ Route::middleware(['auth', 'role:anggota'])->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| 🔥 ROUTE PETUGAS
+| ROUTE PETUGAS
 |--------------------------------------------------------------------------
 */
+
+// semua route petugas menggunakan middleware auth dan role petugas
 Route::middleware(['auth', 'role:petugas'])->group(function () {
 
-    // Dashboard & Profile
+    // dashboard & profile petugas
     Route::get('/petugas/dashboard', [PetugasDashboardController::class, 'index']);
     Route::get('/petugas/profile', [PetugasDashboardController::class, 'profile']);
 
-    // Buku
+    // CRUD buku
     Route::get('/petugas/buku', [BukuController::class, 'index']);
     Route::get('/petugas/buku/create', [BukuController::class, 'create']);
     Route::post('/petugas/buku/store', [BukuController::class, 'store']);
@@ -97,8 +111,7 @@ Route::middleware(['auth', 'role:petugas'])->group(function () {
     Route::get('/petugas/buku/delete/{id}', [BukuController::class, 'delete']);
     Route::get('/petugas/buku/detail/{id}', [BukuController::class, 'detail']);
 
-
-    // Peminjaman
+    // peminjaman
     Route::get('/petugas/peminjaman', [PeminjamanController::class, 'index']);
     Route::get('/petugas/peminjaman/create', [PeminjamanController::class, 'create']);
     Route::post('/petugas/peminjaman/store', [PeminjamanController::class, 'store']);
@@ -108,13 +121,11 @@ Route::middleware(['auth', 'role:petugas'])->group(function () {
     Route::get('/petugas/peminjaman/tolak-pengembalian/{id}', [PeminjamanController::class, 'tolakPengembalian']);
     Route::get('/petugas/peminjaman/detail/{id}', [PeminjamanController::class, 'detail']);
 
-
-    // list riwayat
+    // halaman riwayat peminjaman
     Route::get(
         '/petugas/riwayat',
         [App\Http\Controllers\Petugas\PeminjamanController::class, 'riwayat']
     )->name('petugas.riwayat')->middleware('role:petugas');
-
 
     // detail riwayat
     Route::get(
@@ -122,7 +133,7 @@ Route::middleware(['auth', 'role:petugas'])->group(function () {
         [PeminjamanController::class, 'detailRiwayat']
     )->name('petugas.riwayat.detail');
 
-    // Anggota
+    // CRUD anggota
     Route::get('/petugas/anggota', [AnggotaController::class, 'index']);
     Route::get('/petugas/anggota/create', [AnggotaController::class, 'create']);
     Route::post('/petugas/anggota/store', [AnggotaController::class, 'store']);
@@ -135,16 +146,18 @@ Route::middleware(['auth', 'role:petugas'])->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| 🔥 ROUTE KEPALA
+| ROUTE KEPALA
 |--------------------------------------------------------------------------
 */
+
+// semua route kepala menggunakan middleware auth dan role kepala
 Route::middleware(['auth', 'role:kepala'])->group(function () {
 
-    // Dashboard & Profile
+    // dashboard & profile kepala
     Route::get('/kepala/dashboard', [KepalaDashboardController::class, 'index']);
     Route::get('/kepala/profile', [KepalaDashboardController::class, 'profile']);
 
-    // Petugas
+    // CRUD petugas
     Route::get('/kepala/petugas', [PetugasController::class, 'index']);
     Route::get('/kepala/petugas/create', [PetugasController::class, 'create']);
     Route::post('/kepala/petugas/store', [PetugasController::class, 'store']);
@@ -155,7 +168,7 @@ Route::middleware(['auth', 'role:kepala'])->group(function () {
     Route::get('/kepala/petugas/nonaktif/{id}', [PetugasController::class, 'nonaktif']);
     Route::get('/kepala/petugas/aktif/{id}', [PetugasController::class, 'aktif']);
 
-    // Peminjaman & Laporan
+    // peminjaman & laporan
     Route::get('/kepala/peminjaman', [KepalaPeminjamanController::class, 'index']);
     Route::get('/kepala/peminjaman/detail/{id}', [KepalaPeminjamanController::class, 'detail']);
     Route::get('/kepala/laporan', [KepalaPeminjamanController::class, 'laporan']);
@@ -168,6 +181,8 @@ Route::middleware(['auth', 'role:kepala'])->group(function () {
 | FALLBACK
 |--------------------------------------------------------------------------
 */
+
+// jika route tidak ditemukan redirect ke login
 Route::fallback(function () {
     return redirect('/login')->with('error', 'Silakan login terlebih dahulu');
 });

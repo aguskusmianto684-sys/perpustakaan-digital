@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Petugas;
 
 use App\Http\Controllers\Controller;
 use App\Models\Buku;
-use App\Models\Peminjaman;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -15,12 +14,12 @@ class BukuController extends Controller
      */
     public function __construct()
     {
-        // Cek apakah user sudah login
+        // cek apakah user sudah login
         if (!Auth::check()) {
             redirect('/login')->with('error', 'Silakan login terlebih dahulu')->send();
         }
 
-        // Cek apakah user adalah petugas
+        // cek apakah user memiliki role petugas
         if (Auth::user()->role != 'petugas') {
             redirect('/login')->with('error', 'Silakan login terlebih dahulu')->send();
         }
@@ -31,9 +30,10 @@ class BukuController extends Controller
      */
     public function index()
     {
-        // Ambil data buku urut terbaru
+        // mengambil semua data buku dan diurutkan dari terbaru
         $buku = Buku::orderBy('id_buku', 'desc')->get();
 
+        // kirim data ke view
         return view('petugas.buku.index', compact('buku'));
     }
 
@@ -42,7 +42,7 @@ class BukuController extends Controller
      */
     public function create()
     {
-        // Tampilkan halaman form tambah buku
+        // menampilkan halaman form tambah buku
         return view('petugas.buku.create');
     }
 
@@ -51,7 +51,7 @@ class BukuController extends Controller
      */
     public function store(Request $request)
     {
-        // Validasi input data buku dari form
+        // validasi input dari form
         $request->validate([
             'judul' => 'required',
             'penulis' => 'required',
@@ -62,22 +62,22 @@ class BukuController extends Controller
             'gambar' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048'
         ]);
 
-        // Inisialisasi variabel gambar kosong
+        // inisialisasi variabel gambar
         $gambar = null;
 
-        // Cek apakah file gambar diupload
+        // cek apakah ada file gambar yang diupload
         if ($request->hasFile('gambar')) {
 
             $file = $request->file('gambar');
 
-            // Buat nama file gambar baru
+            // buat nama file gambar baru
             $gambar = time() . '.' . $file->getClientOriginalExtension();
 
-            // Simpan file gambar ke folder
+            // simpan file ke folder uploads/buku
             $file->move(public_path('uploads/buku'), $gambar);
         }
 
-        // Simpan data buku ke database
+        // simpan data buku ke database
         Buku::create([
             'judul' => $request->judul,
             'penulis' => $request->penulis,
@@ -89,7 +89,7 @@ class BukuController extends Controller
             'gambar' => $gambar
         ]);
 
-        // Redirect ke halaman buku dengan sukses
+        // redirect ke halaman buku
         return redirect('/petugas/buku')->with('success', 'Buku berhasil ditambahkan');
     }
 
@@ -98,13 +98,13 @@ class BukuController extends Controller
      */
     public function edit($id)
     {
-        // Ambil data buku
+        // ambil data buku berdasarkan id
         $buku = Buku::find($id);
 
-        // 🔥 daftar kategori
+        // daftar kategori buku
         $kategori = ['Novel', 'Pendidikan', 'Komik', 'Sejarah', 'Teknologi'];
 
-        // kirim ke view
+        // kirim data ke view
         return view('petugas.buku.edit', compact('buku', 'kategori'));
     }
 
@@ -113,25 +113,25 @@ class BukuController extends Controller
      */
     public function update(Request $request, $id)
     {
-        // Ambil data buku berdasarkan id
+        // ambil data buku
         $buku = Buku::find($id);
 
-        // Ambil gambar lama dari database
+        // ambil gambar lama
         $gambar = $buku->gambar;
 
-        // Cek apakah ada gambar baru diupload
+        // cek jika ada gambar baru diupload
         if ($request->hasFile('gambar')) {
 
             $file = $request->file('gambar');
 
-            // Buat nama file gambar baru
+            // buat nama file baru
             $gambar = time() . '.' . $file->getClientOriginalExtension();
 
-            // Simpan file gambar ke folder
+            // simpan file ke folder
             $file->move(public_path('uploads/buku'), $gambar);
         }
 
-        // Update data buku di database
+        // update data buku
         $buku->update([
             'judul' => $request->judul,
             'penulis' => $request->penulis,
@@ -143,7 +143,7 @@ class BukuController extends Controller
             'gambar' => $gambar
         ]);
 
-        // Redirect ke halaman buku setelah update
+        // redirect setelah update
         return redirect('/petugas/buku')->with('success', 'Buku berhasil diupdate');
     }
 
@@ -152,15 +152,16 @@ class BukuController extends Controller
      */
     public function delete($id)
     {
-        // 🔥 cek apakah buku masih dipakai di peminjaman
+        // cek apakah buku masih digunakan di peminjaman
         $dipakai = \App\Models\Peminjaman::where('id_buku', $id)->exists();
 
+        // jika masih dipakai
         if ($dipakai) {
             return redirect('/petugas/buku')
                 ->with('error', 'Buku tidak bisa dihapus karena masih dipinjam');
         }
 
-        // 🔥 kalau tidak dipakai, baru hapus
+        // jika tidak dipakai maka hapus
         Buku::where('id_buku', $id)->delete();
 
         return redirect('/petugas/buku')
@@ -172,10 +173,10 @@ class BukuController extends Controller
      */
     public function detail($id)
     {
-        // Ambil data buku berdasarkan id
+        // ambil data buku berdasarkan id
         $buku = Buku::find($id);
 
-        // Tampilkan halaman detail buku
+        // tampilkan ke view detail
         return view('petugas.buku.detail', compact('buku'));
     }
 }

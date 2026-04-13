@@ -32,6 +32,7 @@ class User extends Authenticatable
         return $this->hasOne(Anggota::class, 'id_user', 'id_user');
     }
 
+    // Relasi ke kepala
     public function kepala()
     {
         return $this->hasOne(KepalaPerpustakaan::class, 'id_user');

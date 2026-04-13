@@ -13,43 +13,48 @@ class LoginController extends Controller
     // Tampilkan halaman login
     public function showLogin()
     {
-        return view('auth.login');
+        return view('auth.login'); // menampilkan view halaman login
     }
 
     public function login(Request $request)
     {
-        // Validasi input login sederhana
+        // validasi input login (username dan password wajib diisi)
         $request->validate([
             'username' => 'required',
             'password' => 'required'
         ]);
 
+        // mengambil data credentials dari input
         $credentials = [
             'username' => $request->username,
             'password' => $request->password
         ];
 
-        // Cek login user ke database
+        // proses pengecekan login ke database
         if (Auth::attempt($credentials)) {
 
+            // regenerate session untuk keamanan
             $request->session()->regenerate();
 
+            // ambil data user yang berhasil login
             $user = Auth::user();
 
-            // 🔥 CEK STATUS PETUGAS
+            // cek jika user adalah petugas
             if ($user->role == 'petugas') {
 
+                // ambil data petugas berdasarkan user
                 $petugas = \App\Models\Petugas::where('id_user', $user->id_user)->first();
 
+                // jika status petugas nonaktif
                 if ($petugas && $petugas->status == 'nonaktif') {
 
-                    Auth::logout();
+                    Auth::logout(); // logout paksa
 
                     return back()->with('error', 'Akun petugas sudah dinonaktifkan');
                 }
             }
 
-            // Redirect sesuai role user
+            // redirect berdasarkan role user
             if ($user->role == 'kepala') {
                 return redirect('/kepala/dashboard')
                     ->with('success', 'Login berhasil sebagai Kepala');
@@ -60,56 +65,58 @@ class LoginController extends Controller
                     ->with('success', 'Login berhasil sebagai Petugas');
             }
 
+            // default jika role anggota
             return redirect('/anggota/dashboard')
                 ->with('success', 'Login berhasil sebagai Anggota');
         }
 
-        // Jika gagal login tampilkan error
+        // jika login gagal
         return back()->with('error', 'Username atau password salah');
     }
 
-    // Proses logout user dari sistem
+    // proses logout user
     public function logout(Request $request)
     {
-        Auth::logout();
+        Auth::logout(); // keluar dari sistem
 
-        // Hapus semua session user
+        // hapus semua session
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
+        // redirect ke halaman login
         return redirect('/login')
             ->with('success', 'Anda telah logout');
     }
 
-    // Tampilkan halaman register user
+    // menampilkan halaman register
     public function showRegister()
     {
-        return view('auth.register');
+        return view('auth.register'); // tampilkan view register
     }
 
-    // Proses registrasi user baru
+    // proses registrasi user baru
     public function register(Request $request)
     {
-        // Validasi username dan email unik
+        // validasi data input
         $request->validate([
-            'username' => 'required|unique:users,username',
-            'password' => 'required|min:4',
+            'username' => 'required|unique:users,username', // username harus unik
+            'password' => 'required|min:4', // minimal 4 karakter
             'nama' => 'required',
-            'email' => 'required|email|unique:anggota,email'
+            'email' => 'required|email|unique:anggota,email' // email unik
         ], [
             'username.unique' => 'Username sudah digunakan',
             'email.unique' => 'Email sudah digunakan'
         ]);
 
-        // Simpan data user baru
+        // simpan data ke tabel users
         $id_user = DB::table('users')->insertGetId([
             'username' => $request->username,
-            'password' => Hash::make($request->password),
-            'role' => 'anggota',
+            'password' => Hash::make($request->password), // enkripsi password
+            'role' => 'anggota', // default role anggota
             'created_at' => now()
         ]);
 
-        // Simpan data anggota baru
+        // simpan data ke tabel anggota
         DB::table('anggota')->insert([
             'id_user' => $id_user,
             'nama' => $request->nama,
@@ -120,7 +127,7 @@ class LoginController extends Controller
             'tgl_lahir' => $request->tgl_lahir
         ]);
 
-        // Redirect ke login setelah berhasil
+        // redirect ke login setelah registrasi berhasil
         return redirect('/login')
             ->with('success', 'Registrasi berhasil');
     }
