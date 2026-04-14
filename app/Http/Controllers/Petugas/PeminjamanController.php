@@ -161,28 +161,6 @@ class PeminjamanController extends Controller
         return back()->with('success', 'Peminjaman berhasil ditolak');
     }
 
-    public function konfirmasiPengembalian($id)
-    {
-        $pinjam = Peminjaman::find($id);
-
-        if (!$pinjam) {
-            return back()->with('error', 'Data tidak ditemukan');
-        }
-
-        if ($pinjam->status != 'menunggu pengembalian') {
-            return back()->with('error', 'Tidak valid');
-        }
-
-        $today = now();
-
-        $pinjam->update([
-            'status' => 'dikembalikan',
-            'tgl_dikembalikan' => $today
-        ]);
-
-        return back()->with('success', 'Pengembalian dikonfirmasi');
-    }
-
     /**
      * Proses pengembalian buku oleh anggota
      */

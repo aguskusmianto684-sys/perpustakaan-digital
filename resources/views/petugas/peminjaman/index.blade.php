@@ -44,7 +44,24 @@
                                         $dendaAsli = $p->pengembalian->denda ?? 0;
                                     @endphp
 
-                                    @if ($p->status == 'dikembalikan')
+                                    {{-- 🔥 JIKA DIPINJAM ATAU MENUNGGU PENGEMBALIAN DAN TELAT --}}
+                                    @if (in_array($p->status, ['dipinjam', 'menunggu pengembalian']) && now()->gt($p->tgl_kembali))
+                                        @php
+                                            $hari = \Carbon\Carbon::parse($p->tgl_kembali)->diffInDays(now(), false);
+                                            $hari = max(0, floor($hari));
+                                            $dendaTelat = $hari * 1000;
+                                        @endphp
+
+                                        <span class="text-danger fw-semibold">
+                                            Rp {{ number_format($dendaTelat) }}
+                                        </span>
+                                        <br>
+                                        <small class="text-danger">
+                                            Terlambat {{ $hari }} hari
+                                        </small>
+
+                                        {{-- 🔥 JIKA SUDAH DIKEMBALIKAN --}}
+                                    @elseif ($p->status == 'dikembalikan')
                                         @if ($dendaAsli > 0)
                                             <span class="text-danger fw-semibold">
                                                 Rp {{ number_format($dendaAsli) }}

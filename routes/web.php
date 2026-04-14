@@ -123,7 +123,6 @@ Route::middleware(['auth', 'role:petugas'])->group(function () {
     Route::get('/petugas/peminjaman/detail/{id}', [PeminjamanController::class, 'detail']);
     Route::get('/petugas/peminjaman/tolak/{id}/{alasan}', [PeminjamanController::class, 'tolak']);
     Route::get('/petugas/peminjaman/tolak-pengembalian/{id}/{alasan}', [PeminjamanController::class, 'tolakPengembalian']);
-    Route::get('/petugas/peminjaman/konfirmasi-pengembalian/{id}', [PeminjamanController::class, 'konfirmasiPengembalian']);
 
     // halaman riwayat peminjaman
     Route::get(

@@ -48,14 +48,53 @@
                             <td>{{ $d->tgl_pinjam }}</td>
                             <td>{{ $d->tgl_kembali }}</td>
 
-                            <td>-</td>
+                            {{-- 🔥 DENDA FIX --}}
+                            <td>
+                                @php
+                                    $denda = $d->pengembalian->denda ?? 0;
+                                @endphp
+
+                                {{-- jika masih dipinjam dan telat --}}
+                                @if ($d->status == 'dipinjam' && now()->gt($d->tgl_kembali))
+
+                                    @php
+                                        $hari = \Carbon\Carbon::parse($d->tgl_kembali)->diffInDays(now(), false);
+                                        $hari = max(0, floor($hari));
+                                        $dendaTelat = $hari * 1000;
+                                    @endphp
+
+                                    <span class="text-danger fw-semibold">
+                                        Rp {{ number_format($dendaTelat) }}
+                                    </span>
+                                    <br>
+                                    <small class="text-danger">
+                                        Terlambat {{ $hari }} hari
+                                    </small>
+
+                                {{-- jika sudah dikembalikan --}}
+                                @elseif($d->status == 'dikembalikan')
+
+                                    @if ($denda > 0)
+                                        <span class="text-danger fw-semibold">
+                                            Rp {{ number_format($denda) }}
+                                        </span>
+                                        <br>
+                                        <small class="text-success">Lunas</small>
+                                    @else
+                                        <small class="text-success">Tepat Waktu</small>
+                                    @endif
+
+                                @else
+                                    -
+                                @endif
+                            </td>
 
                             <td>
 
                                 @if($d->status == 'dipinjam')
                                     <span class="badge bg-primary">Dipinjam</span>
 
-                                    {{-- 🔥 JIKA PENGEMBALIAN DITOLAK --}}
+                                    {{-- jika pengembalian ditolak --}}
                                     @if($d->alasan)
                                         <br>
                                         <small class="text-danger">
