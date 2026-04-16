@@ -53,7 +53,7 @@
                     <td>{{ $data->tgl_dikembalikan ?? '-' }}</td>
                 </tr>
 
-                {{-- 🔥 STATUS --}}
+                {{--  STATUS --}}
                 <tr>
                     <th>Status</th>
                     <td>
@@ -81,7 +81,7 @@
                     </td>
                 </tr>
 
-                {{-- 🔥 DENDA FIX --}}
+                {{-- DENDA --}}
                 <tr>
                     <th>Denda</th>
                     <td>
@@ -90,7 +90,7 @@
                             $denda = 0;
                             $hari = 0;
 
-                            // 🔥 masih dipinjam & terlambat
+                            // masih dipinjam & terlambat
                             if ($data->status == 'dipinjam' && now()->gt($data->tgl_kembali)) {
                                 $hari = \Carbon\Carbon::parse($data->tgl_kembali)
                                     ->startOfDay()
@@ -99,7 +99,7 @@
                                 $denda = $hari * 1000;
                             }
 
-                            // 🔥 sudah dikembalikan & terlambat
+                            // sudah dikembalikan & terlambat
                             elseif ($data->status == 'dikembalikan' && $data->tgl_dikembalikan > $data->tgl_kembali) {
                                 $hari = \Carbon\Carbon::parse($data->tgl_kembali)
                                     ->startOfDay()
@@ -119,7 +119,7 @@
                                 Terlambat {{ $hari }} hari
                             </small>
 
-                            {{-- 🔥 kalau sudah dikembalikan --}}
+                            {{-- kalau sudah dikembalikan --}}
                             @if ($data->status == 'dikembalikan')
                                 <br>
                                 <small class="text-success">

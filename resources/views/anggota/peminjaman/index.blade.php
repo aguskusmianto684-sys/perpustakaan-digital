@@ -48,7 +48,7 @@
                             <td>{{ $d->tgl_pinjam }}</td>
                             <td>{{ $d->tgl_kembali }}</td>
 
-                            {{-- 🔥 DENDA FIX --}}
+                            {{-- denda --}}
                             <td>
                                 @php
                                     $denda = $d->pengembalian->denda ?? 0;

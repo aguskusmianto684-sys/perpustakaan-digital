@@ -44,7 +44,7 @@
                                         $dendaAsli = $p->pengembalian->denda ?? 0;
                                     @endphp
 
-                                    {{-- 🔥 JIKA DIPINJAM ATAU MENUNGGU PENGEMBALIAN DAN TELAT --}}
+                                    {{-- JIKA DIPINJAM ATAU MENUNGGU PENGEMBALIAN DAN TELAT --}}
                                     @if (in_array($p->status, ['dipinjam', 'menunggu pengembalian']) && now()->gt($p->tgl_kembali))
                                         @php
                                             $hari = \Carbon\Carbon::parse($p->tgl_kembali)->diffInDays(now(), false);
@@ -60,7 +60,7 @@
                                             Terlambat {{ $hari }} hari
                                         </small>
 
-                                        {{-- 🔥 JIKA SUDAH DIKEMBALIKAN --}}
+                                        {{-- JIKA SUDAH DIKEMBALIKAN --}}
                                     @elseif ($p->status == 'dikembalikan')
                                         @if ($dendaAsli > 0)
                                             <span class="text-danger fw-semibold">
@@ -111,10 +111,12 @@
                                         @if ($p->status == 'dikembalikan' && $p->denda == 0)
                                             <button class="btn btn-sm btn-success"
                                                 onclick="showStruk(
-                                        '{{ $p->anggota->nama }}',
-                                        '{{ $p->buku->judul }}',
-                                        '{{ $p->pengembalian->denda ?? 0 }}'
-                                    )">
+                                                    '{{ $p->anggota->nama }}',
+                                                    '{{ $p->buku->judul }}',
+                                                    '{{ $p->pengembalian->denda ?? 0 }}',
+                                                    '{{ $p->tgl_pinjam }}',
+                                                    '{{ $p->tgl_kembali }}'
+                                                )">
                                                 🧾
                                             </button>
                                         @endif
@@ -240,23 +242,90 @@
             }
         }
 
-        function showStruk(nama, buku, denda) {
+        function showStruk(nama, buku, denda, tglPinjam, tglKembali) {
+
+            let now = new Date();
+            let tanggal = now.toLocaleDateString();
+            let jam = now.toLocaleTimeString();
+            let kode = 'TRX-' + Math.floor(Math.random() * 100000);
+
             let html = `
-        <div>ID : TRX-${Math.floor(Math.random()*100000)}</div>
+        <div style="text-align:center;">
+            <strong>PERPUSTAKAAN DIGITAL</strong><br>
+            <small>Digital Library</small>
+        </div>
+
+        <hr style="border-top:1px dashed black;">
+
+        <div style="font-size:11px;">
+            No Transaksi : ${kode}<br>
+            Tanggal Cetak : ${tanggal}<br>
+            Jam : ${jam}
+        </div>
+
+        <hr style="border-top:1px dashed black;">
+
         <div>Nama : ${nama}</div>
-        <div>Buku : ${buku}</div>
-        <div>Denda : Rp ${denda}</div>
-        <hr>
-        <b>TOTAL : Rp ${denda}</b>
+
+        <hr style="border-top:1px dashed black;">
+
+        <div><strong>${buku}</strong></div>
+
+        <hr style="border-top:1px dashed black;">
+
+        <div style="font-size:11px;">
+            Tgl Pinjam  : ${tglPinjam}<br>
+            Tgl Kembali : ${tglKembali}
+        </div>
+
+        <hr style="border-top:1px dashed black;">
+
+        <div style="display:flex; justify-content:space-between;">
+            <span>Denda</span>
+            <span>Rp ${denda}</span>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; font-weight:bold;">
+            <span>TOTAL</span>
+            <span>Rp ${denda}</span>
+        </div>
+
+        <hr style="border-top:1px dashed black;">
+
+        <div style="text-align:center; font-size:11px;">
+            TERIMA KASIH<br>
+            SIMPAN STRUK INI
+        </div>
     `;
+
             document.getElementById('strukContent').innerHTML = html;
             new bootstrap.Modal(document.getElementById('modalStruk')).show();
         }
 
+
         function printStruk() {
             let isi = document.getElementById('areaStruk').innerHTML;
-            let win = window.open('', '', 'width=300,height=600');
-            win.document.write(`<body onload="window.print();window.close()">${isi}</body>`);
+
+            let win = window.open('', '', 'width=300,height=700');
+
+            win.document.write(`
+        <html>
+        <head>
+            <style>
+                body {
+                    font-family: monospace;
+                    width: 260px;
+                    margin: auto;
+                    font-size: 12px;
+                }
+            </style>
+        </head>
+        <body onload="window.print(); window.close();">
+            ${isi}
+        </body>
+        </html>
+    `);
+
             win.document.close();
         }
     </script>

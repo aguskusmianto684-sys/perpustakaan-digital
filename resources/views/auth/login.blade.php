@@ -154,7 +154,7 @@
 
     </div>
 
-    {{-- 🔥 ALERT SUCCESS --}}
+    {{--ALERT berhasil --}}
     @if (session('success'))
         <script>
             Swal.fire({
@@ -167,7 +167,7 @@
         </script>
     @endif
 
-    {{-- 🔥 ALERT ERROR --}}
+    {{--ALERT ERROR --}}
     @if (session('error'))
         <script>
             Swal.fire({

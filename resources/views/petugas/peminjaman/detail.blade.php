@@ -37,7 +37,30 @@
 
                     <tr>
                         <th>Status</th>
-                        <td>{{ $data->status }}</td>
+                        <td>
+                            @if ($data->status == 'dipinjam' && now()->gt($data->tgl_kembali))
+                                <span class="badge bg-danger">Terlambat</span>
+                            @elseif($data->status == 'dipinjam')
+                                <span class="badge bg-primary">Dipinjam</span>
+                            @elseif($data->status == 'menunggu')
+                                <span class="badge bg-warning text-dark">Menunggu</span>
+                            @elseif($data->status == 'menunggu pengembalian')
+                                <span class="badge bg-info">Menunggu Pengembalian</span>
+                            @elseif($data->status == 'dikembalikan')
+                                <span class="badge bg-success">Dikembalikan</span>
+                            @elseif($data->status == 'ditolak')
+                                <span class="badge bg-danger">Ditolak</span>
+
+                                @if ($data->alasan)
+                                    <br>
+                                    <small class="text-danger">
+                                        {{ $data->alasan }}
+                                    </small>
+                                @endif
+                            @else
+                                <span class="badge bg-secondary">-</span>
+                            @endif
+                        </td>
                     </tr>
 
                     <tr>
@@ -48,7 +71,7 @@
                                 $denda = 0;
                                 $hari = 0;
 
-                                // 🔥 kalau sudah dikembalikan → hitung dari tgl_dikembalikan
+                                // kalo sudah dikembalikan  hitung dari tgl_dikembalikan
                                 if ($data->status == 'dikembalikan' && $data->tgl_dikembalikan) {
                                     if ($data->tgl_dikembalikan > $data->tgl_kembali) {
                                         $hari = \Carbon\Carbon::parse($data->tgl_kembali)
@@ -58,7 +81,7 @@
                                         $denda = $hari * 1000;
                                     }
                                 }
-                                // 🔥 kalau masih dipinjam (realtime)
+                                // kalau masih dipinjam (realtime)
                                 elseif ($data->status == 'dipinjam' && now()->gt($data->tgl_kembali)) {
                                     $hari = \Carbon\Carbon::parse($data->tgl_kembali)
                                         ->startOfDay()
@@ -73,7 +96,7 @@
                                     Rp {{ number_format($denda) }}
                                 </span>
 
-                                {{-- 🔥 KETERANGAN --}}
+                                {{-- KETERANGAN --}}
                                 @if ($data->status == 'dikembalikan')
                                     <br>
                                     <small class="text-success">

@@ -38,7 +38,7 @@
                         <input type="number" name="tahun_terbit" class="form-control" placeholder="Contoh: 2005">
                     </div>
 
-                    {{-- 🔥 KATEGORI + SEARCH --}}
+                    {{-- KATEGORI dan SEARCH --}}
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Kategori</label>
                         <select name="kategori" class="form-control select2" required>
@@ -103,7 +103,7 @@
     </div>
 @endsection
 
-{{-- 🔥 SCRIPT SELECT2 --}}
+{{-- SCRIPT pilih kkategori buku --}}
 @push('js')
 <script>
     $(document).ready(function () {

@@ -13,14 +13,14 @@
 
             <ul class="navbar-nav flex-row ms-auto align-items-center justify-content-end">
 
-                {{-- 🔥 NAMA USER --}}
+                {{-- NAMA USER --}}
                 <span class="me-2 fw-semibold">
                     {{ Auth::user()->username }}
                 </span>
 
                 <li class="nav-item dropdown">
 
-                    {{-- 🔥 ICON PROFILE (INISIAL) --}}
+                    {{-- ICON PROFILE (INISIAL) --}}
                     <a class="nav-link nav-icon-hover d-flex align-items-center justify-content-center"
                         href="javascript:void(0)" id="drop2" data-bs-toggle="dropdown" aria-expanded="false"
                         style="
@@ -40,7 +40,7 @@
 
                     </a>
 
-                    {{-- 🔥 DROPDOWN --}}
+                    {{-- DROPDOWN --}}
                     <div class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="drop2"
                         style="min-width:220px;">
 
@@ -52,7 +52,7 @@
                             </small>
                         </div>
 
-                        {{-- 🔥 PROFILE SESUAI ROLE --}}
+                        {{-- PROFILE SESUAI ROLE --}}
                         @if (Auth::user()->role == 'anggota')
                             <a href="/anggota/profile" class="dropdown-item">
                                 <i class="ti ti-user"></i> Profil Saya
@@ -69,7 +69,7 @@
 
                         <div class="dropdown-divider"></div>
 
-                        {{-- 🔥 LOGOUT --}}
+                        {{-- LOGOUT --}}
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
                             <button class="dropdown-item text-danger">

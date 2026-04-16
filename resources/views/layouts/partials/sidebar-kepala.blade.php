@@ -13,7 +13,7 @@
                         Perpustakaan
                     </span><br>
                     <span style="font-weight:500; font-size:14px; color:#000;">
-                        Digital
+                        Web
                     </span>
                 </div>
             </div>

@@ -203,7 +203,7 @@
         });
     </script>
 
-    {{-- FIX BACK BUTTON --}}
+    {{-- tombol kebali --}}
     <script>
         window.addEventListener("pageshow", function(event) {
             if (event.persisted) {

@@ -201,7 +201,7 @@ class BukuAnggotaController extends Controller
         $data = Peminjaman::join('buku', 'peminjaman.id_buku', '=', 'buku.id_buku')
             ->where('peminjaman.id_anggota', $anggota->id_anggota)
 
-            // 🔥 INI YANG DIPERBAIKI
+            //  INI YANG DIPERBAIKI
             ->whereIn('peminjaman.status', ['menunggu', 'dipinjam', 'menunggu pengembalian'])
 
             ->select('peminjaman.*', 'buku.judul', 'buku.gambar')

@@ -71,7 +71,6 @@
         .input-box textarea {
             width: 100%;
             padding: 10px 40px 10px 35px;
-            /* 🔥 FIX */
             border-radius: 8px;
             border: 1px solid #ddd;
             outline: none;

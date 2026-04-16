@@ -8,10 +8,10 @@
     <div class="card">
         <div class="card-body">
 
-            {{-- 🔥 JUDUL HALAMAN --}}
+            {{-- JUDUL HALAMAN --}}
             <h4 class="mb-3">Laporan Peminjaman & Pengembalian</h4>
 
-            {{-- 🔥 FILTER --}}
+            {{-- FILTER --}}
             <form method="GET" class="mb-3 d-flex gap-2">
 
                 <select name="bulan" class="form-control">
@@ -37,7 +37,7 @@
 
             </form>
 
-            {{-- 🔥 INFO FILTER --}}
+            {{-- INFO FILTER --}}
             @if (request('bulan') || request('tahun'))
                 <div class="alert alert-info">
                     Menampilkan laporan:
@@ -46,7 +46,7 @@
                 </div>
             @endif
 
-            {{-- 🔥 HEADER + PDF --}}
+            {{-- HEADER + PDF --}}
             <div class="d-flex justify-content-between align-items-center mb-3">
 
                 <div>
@@ -64,7 +64,7 @@
 
             </div>
 
-            {{-- 🔥 TABLE --}}
+            {{-- TABLE --}}
             <div class="table-responsive">
                 <table id="laporanTable" class="table table-bordered table-hover">
 
@@ -89,7 +89,7 @@
                                 $denda = 0;
                                 $hari = 0;
 
-                                // 🔥 MASIH DIPINJAM & TERLAMBAT
+                                // MASIH DIPINJAM & TERLAMBAT
                                 if ($d->status == 'dipinjam' && now()->gt($d->tgl_kembali)) {
                                     $hari = \Carbon\Carbon::parse($d->tgl_kembali)
                                         ->startOfDay()
@@ -98,7 +98,7 @@
                                     $denda = $hari * 1000;
                                 }
 
-                                // 🔥 SUDAH DIKEMBALIKAN & TERLAMBAT
+                                // SUDAH DIKEMBALIKAN & TERLAMBAT
                                 elseif ($d->pengembalian && $d->pengembalian->tgl_pengembalian > $d->tgl_kembali) {
                                     $hari = \Carbon\Carbon::parse($d->tgl_kembali)
                                         ->startOfDay()
@@ -130,7 +130,7 @@
                                     @endif
                                 </td>
 
-                                {{-- 🔥 DENDA FIX --}}
+                                {{-- bagian DENDA  --}}
                                 <td>
                                     @if ($denda > 0)
                                         <span class="text-danger fw-semibold">
@@ -152,7 +152,7 @@
                                     {{ $d->pengembalian->tgl_pengembalian ?? '-' }}
                                 </td>
 
-                                {{-- 🔥 STATUS PENGEMBALIAN FIX --}}
+                                {{--STATUS PENGEMBALIAN--}}
                                 <td>
 
                                     @if ($d->status == 'dipinjam')

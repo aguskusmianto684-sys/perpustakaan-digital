@@ -59,7 +59,7 @@
                                 </td>
                             </tr>
 
-                            {{-- 🔥 DENDA FINAL --}}
+                            {{--bagian denda --}}
                             <tr>
                                 <th>Denda</th>
                                 <td>

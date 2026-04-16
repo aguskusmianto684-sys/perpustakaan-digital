@@ -105,7 +105,7 @@
                     </a>
                 @endif
 
-                {{-- 🔥 NOTIF PENGEMBALIAN --}}
+                {{-- NOTIFIKASI PENGEMBALIAN --}}
                 @if ($pengajuanPengembalian > 0)
                     <a href="/petugas/peminjaman" class="text-decoration-none">
                         <div class="alert alert-info shadow-sm d-flex justify-content-between align-items-center">

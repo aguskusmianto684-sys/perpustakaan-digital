@@ -39,7 +39,7 @@ class PeminjamanController extends Controller
     {
         // ambil data peminjaman dengan relasi anggota dan buku
         $peminjaman = Peminjaman::with(['anggota', 'buku'])
-            ->latest('tgl_pinjam') // urutkan dari terbaru
+            ->orderBy('id_peminjaman', 'desc')
             ->get();
 
         // tampilkan ke view
@@ -218,7 +218,7 @@ class PeminjamanController extends Controller
             return back()->with('error', 'Data tidak ditemukan');
         }
 
-        // 🔥 PERBAIKAN VALIDASI
+        // PERBAIKAN VALIDASI
         if (!in_array($pinjam->status, ['menunggu pengembalian', 'dipinjam'])) {
             return back()->with('error', 'Tidak bisa menolak');
         }

@@ -124,7 +124,7 @@
 @push('js')
 <script>
 function showAlasan(btn) {
-    let alasan = btn.getAttribute('data-alasan'); // 🔥 ambil dari attribute
+    let alasan = btn.getAttribute('data-alasan'); //mengambil dari attribute
 
     document.getElementById('isiAlasan').innerText = alasan;
 

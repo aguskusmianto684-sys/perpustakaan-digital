@@ -12,7 +12,7 @@
             Dashboard Kepala Perpustakaan
         </h4>
 
-        {{-- 🔥 NOTIFIKASI PENGEMBALIAN --}}
+        {{-- NOTIFIKASI PENGEMBALIAN --}}
         @if (isset($pengajuanPengembalian) && $pengajuanPengembalian > 0)
             <div class="alert alert-info d-flex justify-content-between align-items-center">
                 <div>

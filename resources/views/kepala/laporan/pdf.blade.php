@@ -32,7 +32,7 @@
                 $denda = 0;
                 $hari = 0;
 
-                // 🔥 MASIH DIPINJAM & TERLAMBAT
+                //  MASIH DIPINJAM & TERLAMBAT
                 if ($d->status == 'dipinjam' && now()->gt($d->tgl_kembali)) {
                     $hari = \Carbon\Carbon::parse($d->tgl_kembali)
                         ->startOfDay()
@@ -41,7 +41,7 @@
                     $denda = $hari * 1000;
                 }
 
-                // 🔥 SUDAH DIKEMBALIKAN & TERLAMBAT
+                //  SUDAH DIKEMBALIKAN & TERLAMBAT
                 elseif ($d->pengembalian && $d->pengembalian->tgl_pengembalian > $d->tgl_kembali) {
                     $hari = \Carbon\Carbon::parse($d->tgl_kembali)
                         ->startOfDay()
@@ -50,7 +50,7 @@
                     $denda = $hari * 1000;
                 }
 
-                // 🔥 FORMAT STATUS
+                // FORMAT STATUS
                 if ($d->status == 'menunggu') {
                     $statusText = 'Menunggu';
                 } elseif ($d->status == 'dipinjam') {
@@ -73,7 +73,7 @@
                     {{ $statusText }}
                 </td>
 
-                {{-- 🔥 DENDA --}}
+                {{-- DENDA --}}
                 <td align="center">
                     @if ($denda > 0)
                         <b>Rp {{ number_format($denda) }}</b>
@@ -90,14 +90,14 @@
 
 <br><br>
 
-{{-- 🔥 TANGGAL --}}
+{{-- TANGGAL --}}
 <p style="text-align:right;">
     Banjar, {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}
 </p>
 
 <br><br><br>
 
-{{-- 🔥 TANDA TANGAN --}}
+{{-- TANDA TANGAN --}}
 <table width="100%" style="text-align:center;">
     <tr>
         <td>

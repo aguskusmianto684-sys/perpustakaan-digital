@@ -133,6 +133,13 @@
                     </a>
                 </li>
 
+                {{-- <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button class="btn btn-danger w-100 mt-3">
+                        <i class="ti ti-logout"></i> Logout
+                    </button>
+                </form> --}}
+
             </ul>
         </nav>
 
