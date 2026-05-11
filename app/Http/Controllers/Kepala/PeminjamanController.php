@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Kepala;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Peminjaman;
+use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class PeminjamanController extends Controller
 {
@@ -49,17 +51,60 @@ class PeminjamanController extends Controller
     /**
      * Laporan peminjaman (🔥 SUDAH RELASI)
      */
-    public function laporan()
+
+
+    public function laporan(Request $request)
     {
-        $data = Peminjaman::with([
+        $bulan = $request->bulan;
+        $tahun = $request->tahun;
+
+        $query = Peminjaman::with([
             'anggota',
             'buku',
             'petugas',
-            'pengembalian' // 🔥 TAMBAH INI
-        ])
-            ->orderBy('id_peminjaman', 'desc')
-            ->get();
+            'pengembalian'
+        ]);
 
-        return view('kepala.laporan.index', compact('data'));
+        if ($bulan) {
+            $query->whereMonth('tgl_pinjam', $bulan);
+        }
+
+        if ($tahun) {
+            $query->whereYear('tgl_pinjam', $tahun);
+        }
+
+        $data = $query->orderBy('id_peminjaman', 'desc')->get();
+
+        return view('kepala.laporan.index', compact('data', 'bulan', 'tahun'));
+    }
+
+
+
+
+    public function exportPdf(Request $request)
+    {
+        $bulan = $request->bulan;
+        $tahun = $request->tahun;
+
+        $query = Peminjaman::with([
+            'anggota',
+            'buku',
+            'petugas',
+            'pengembalian'
+        ]);
+
+        if ($bulan) {
+            $query->whereMonth('tgl_pinjam', $bulan);
+        }
+
+        if ($tahun) {
+            $query->whereYear('tgl_pinjam', $tahun);
+        }
+
+        $data = $query->get();
+
+        $pdf = Pdf::loadView('kepala.laporan.pdf', compact('data', 'bulan', 'tahun'));
+
+        return $pdf->download('laporan-perpustakaan.pdf');
     }
 }

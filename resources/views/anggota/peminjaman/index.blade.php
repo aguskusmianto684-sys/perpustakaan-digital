@@ -3,11 +3,12 @@
 @section('sidebar')
     @include('layouts.partials.sidebar-anggota')
 @endsection
+
 @section('content')
 
 <div class="container">
 
-    {{-- judul halaman --}}
+    {{-- 🔥 JUDUL --}}
     <h4 class="mb-4">
         <i class="ti ti-book"></i> Buku Saya
     </h4>
@@ -24,7 +25,7 @@
                     <th>Tanggal Kembali</th>
                     <th>Denda</th>
                     <th>Status</th>
-                    <th>Aksi</th> {{-- 🔥 TAMBAH --}}
+                    <th width="140">Aksi</th>
                 </tr>
             </thead>
 
@@ -34,31 +35,53 @@
 
                 <tr>
 
-                    {{-- nomor --}}
+                    {{-- NOMOR --}}
                     <td>{{ $index + 1 }}</td>
 
-                    {{-- info buku --}}
+                    {{-- BUKU --}}
                     <td>
-                        <img src="{{ asset('uploads/buku/'.$d->gambar) }}" width="40">
-                        {{ $d->judul }}
+                        <div class="d-flex align-items-center gap-2">
+                            <img src="{{ asset('uploads/buku/'.$d->gambar) }}"
+                                 width="40"
+                                 style="border-radius:6px">
+                            <span>{{ $d->judul }}</span>
+                        </div>
                     </td>
 
-                    {{-- tanggal --}}
+                    {{-- TANGGAL --}}
                     <td>{{ $d->tgl_pinjam }}</td>
                     <td>{{ $d->tgl_kembali }}</td>
 
-                    {{-- denda --}}
                     <td>
-                        @if($d->denda > 0)
-                            <span class="text-danger">
-                                Rp {{ number_format($d->denda) }}
+                        @php
+                            $denda = 0;
+                            $hari = 0;
+
+                            // 🔥 hitung realtime kalau masih dipinjam & terlambat
+                            if ($d->status == 'dipinjam' && now()->gt($d->tgl_kembali)) {
+                                $hari = floor(\Carbon\Carbon::parse($d->tgl_kembali)
+                                ->diffInDays(now()));
+
+                                $denda = $hari * 1000;
+                            } else {
+                                $denda = $d->denda;
+                            }
+                        @endphp
+
+                        @if($denda > 0)
+                            <span class="text-danger fw-semibold">
+                                Rp {{ number_format($denda) }}
                             </span>
+                            <br>
+                            <small class="text-danger">
+                                Terlambat {{ $hari }} hari
+                            </small>
                         @else
                             -
                         @endif
                     </td>
 
-                    {{-- status --}}
+                    {{-- STATUS --}}
                     <td>
 
                         @if($d->status == 'dipinjam' && now()->gt($d->tgl_kembali))
@@ -70,7 +93,7 @@
                         @elseif($d->status == 'menunggu')
                             <span class="badge bg-warning text-dark">Menunggu</span>
 
-                        @elseif($d->status == 'menunggu pengembalian') {{-- 🔥 TAMBAH --}}
+                        @elseif($d->status == 'menunggu pengembalian')
                             <span class="badge bg-info">Menunggu Konfirmasi</span>
 
                         @elseif($d->status == 'ditolak')
@@ -85,21 +108,41 @@
 
                     </td>
 
-                    {{-- 🔥 AKSI --}}
-                    <td>
+                    {{-- 🔥 AKSI BARU (CLEAN + ICON) --}}
+                    <td class="text-center">
 
                         @if($d->status == 'dipinjam')
+
                             <a href="/anggota/pengembalian/{{ $d->id_peminjaman }}"
-                               class="btn btn-warning btn-sm"
+                               class="btn btn-sm btn-warning"
+                               title="Ajukan Pengembalian"
                                onclick="return confirm('Ajukan pengembalian buku ini?')">
-                                Ajukan
+
+                                <i class="ti ti-rotate"></i> Ajukan
                             </a>
 
                         @elseif($d->status == 'menunggu pengembalian')
-                            <span class="text-muted">Menunggu</span>
+
+                            <span class="badge bg-info">
+                                <i class="ti ti-clock"></i> Menunggu
+                            </span>
+
+                        @elseif($d->status == 'dikembalikan')
+
+                            <span class="badge bg-success">
+                                <i class="ti ti-check"></i> Selesai
+                            </span>
+
+                        @elseif($d->status == 'ditolak')
+
+                            <span class="badge bg-danger">
+                                <i class="ti ti-x"></i> Ditolak
+                            </span>
 
                         @else
-                            -
+
+                            <span class="text-muted">-</span>
+
                         @endif
 
                     </td>
@@ -117,3 +160,15 @@
 </div>
 
 @endsection
+
+
+{{-- 🔥 STYLE TAMBAHAN --}}
+@push('css')
+<style>
+
+.btn-sm i {
+    font-size: 14px;
+}
+
+</style>
+@endpush

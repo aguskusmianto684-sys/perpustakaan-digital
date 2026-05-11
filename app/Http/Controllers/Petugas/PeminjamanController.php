@@ -61,6 +61,15 @@ class PeminjamanController extends Controller
         return view('petugas.peminjaman.create', compact('anggota', 'buku'));
     }
 
+    public function detail($id)
+    {
+        $data = \App\Models\Peminjaman::with(['anggota', 'buku'])
+            ->where('id_peminjaman', $id)
+            ->first();
+
+        return view('petugas.peminjaman.detail', compact('data'));
+    }
+
     /**
      * Menyimpan data peminjaman baru ke database
      */
@@ -95,47 +104,36 @@ class PeminjamanController extends Controller
      */
     public function konfirmasi($id)
     {
-        // Ambil data peminjaman berdasarkan id
+        // Ambil data peminjaman
         $pinjam = Peminjaman::find($id);
 
-        // Cek apakah data peminjaman tersedia
         if (!$pinjam) {
             return back()->with('error', 'Data tidak ditemukan');
         }
 
-        // Ambil data buku berdasarkan id buku
-        $buku = Buku::find($pinjam->id_buku);
-
-        // Cek apakah stok buku masih tersedia
-        if ($buku->stok <= 0) {
-            return back()->with('error', 'Stok habis');
-        }
-
-        // Ambil data petugas dari user login
+        // 🔥 ambil petugas login
         $petugas = Petugas::where('id_user', Auth::user()->id_user)->first();
 
-        // Cek apakah petugas ditemukan di database
         if (!$petugas) {
             return back()->with('error', 'Petugas tidak ditemukan');
         }
 
-        // Kurangi stok buku setelah dikonfirmasi
-        Buku::where('id_buku', $pinjam->id_buku)->decrement('stok');
+        // 🔥 TIDAK CEK STOK LAGI
+        // 🔥 TIDAK KURANGI STOK LAGI
 
-        // Update status peminjaman menjadi dipinjam
+        // update status saja
         $pinjam->update([
             'status' => 'dipinjam',
             'id_petugas' => $petugas->id_petugas
         ]);
 
-        // Kembali dengan pesan sukses konfirmasi
         return back()->with('success', 'Peminjaman dikonfirmasi');
     }
 
     // proses tolak peminjaman buku
     public function tolak($id)
     {
-        $peminjaman = \App\Models\Peminjaman::find($id);
+        $peminjaman = Peminjaman::find($id);
 
         if (!$peminjaman) {
             return back()->with('error', 'Data tidak ditemukan');
@@ -145,12 +143,15 @@ class PeminjamanController extends Controller
             return back()->with('error', 'Tidak bisa menolak');
         }
 
-        // 🔥 ambil petugas login
         $petugas = Auth::user()->petugas;
 
+        // 🔥 BALIKIN STOK BUKU
+        Buku::where('id_buku', $peminjaman->id_buku)->increment('stok');
+
+        // update status
         $peminjaman->update([
             'status' => 'ditolak',
-            'id_petugas' => $petugas->id_petugas // 🔥 INI YANG KURANG
+            'id_petugas' => $petugas->id_petugas
         ]);
 
         return back()->with('success', 'Peminjaman berhasil ditolak');
@@ -229,16 +230,27 @@ class PeminjamanController extends Controller
     /**
      * Menampilkan riwayat peminjaman sudah dikembalikan
      */
-    public function riwayat()
-    {
-        // Ambil data riwayat pakai relasi
-        $data = Peminjaman::with(['anggota', 'buku'])
-            ->whereIn('status', ['dikembalikan', 'ditolak'])
-            ->orderBy('tgl_pinjam', 'desc')
-            ->get();
+// 🔥 RIWAYAT
+public function riwayat()
+{
+    $data = Peminjaman::with(['anggota', 'buku'])
+        ->whereIn('status', ['dikembalikan', 'ditolak'])
+        ->orderBy('tgl_pinjam', 'desc')
+        ->get();
 
-        return view('petugas.peminjaman.riwayat', compact('data'));
-    }
+    return view('petugas.riwayat.index', compact('data')); // ✅ FIX
+}
+
+
+// 🔥 DETAIL RIWAYAT
+public function detailRiwayat($id)
+{
+    $data = Peminjaman::with(['anggota', 'buku'])
+        ->where('id_peminjaman', $id)
+        ->first();
+
+    return view('petugas.riwayat.detail', compact('data')); // ✅ SUDAH BENAR
+}
 
     /**
      * Menampilkan data peminjaman untuk kepala

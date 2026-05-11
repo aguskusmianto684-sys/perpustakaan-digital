@@ -3,11 +3,10 @@
 namespace App\Http\Controllers\Petugas;
 
 use App\Http\Controllers\Controller;
+use App\Models\Buku;
+use App\Models\Peminjaman;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-
-// Import model buku
-use App\Models\Buku;
 
 class BukuController extends Controller
 {
@@ -153,11 +152,19 @@ class BukuController extends Controller
      */
     public function delete($id)
     {
-        // Hapus data buku berdasarkan id
+        // 🔥 cek apakah buku masih dipakai di peminjaman
+        $dipakai = \App\Models\Peminjaman::where('id_buku', $id)->exists();
+
+        if ($dipakai) {
+            return redirect('/petugas/buku')
+                ->with('error', 'Buku tidak bisa dihapus karena masih dipinjam');
+        }
+
+        // 🔥 kalau tidak dipakai, baru hapus
         Buku::where('id_buku', $id)->delete();
 
-        // Redirect ke halaman buku setelah hapus
-        return redirect('/petugas/buku')->with('success', 'Buku berhasil dihapus');
+        return redirect('/petugas/buku')
+            ->with('success', 'Buku berhasil dihapus');
     }
 
     /**

@@ -27,6 +27,7 @@
                         <th>Tgl Kembali</th>
                         <th>Denda</th>
                         <th>Status</th>
+                        <th>Aksi</th>
                     </tr>
                 </thead>
 
@@ -88,18 +89,29 @@
                             @if($d->status == 'ditolak')
                                 <span class="badge bg-dark">Ditolak</span>
 
-                            @elseif($denda > 0)
-                                <span class="badge bg-danger">Terlambat</span>
-
                             @elseif($d->status == 'dikembalikan')
-                                <span class="badge bg-success">Tepat Waktu</span>
+
+                                @if($denda > 0)
+                                    <span class="badge bg-danger">Terlambat</span>
+                                    <br>
+                                    <small class="text-danger">Sudah dikembalikan</small>
+                                @else
+                                    <span class="badge bg-success">Tepat Waktu</span>
+                                @endif
 
                             @else
-                                <span class="badge bg-secondary">Status tidak diketahui</span>
-
+                                <span class="badge bg-secondary">Belum Selesai</span>
                             @endif
 
                         </td>
+
+                        <td>
+                            <a href="{{ route('petugas.riwayat.detail', $d->id_peminjaman) }}"
+                            class="btn btn-sm btn-info">
+                                <i class="ti ti-eye"></i>
+                            </a>
+                        </td>
+
 
                     </tr>
 

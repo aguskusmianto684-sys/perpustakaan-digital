@@ -84,7 +84,7 @@ class AnggotaController extends Controller
 
         $peminjaman = Peminjaman::with('buku')
             ->where('id_anggota', $id)
-            ->where('status', 'dipinjam')
+            ->whereIn('status', ['dipinjam', 'menunggu pengembalian']) // 🔥 FIX
             ->orderBy('tgl_pinjam', 'desc')
             ->get();
 

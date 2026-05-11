@@ -12,26 +12,49 @@
         <i class="ti ti-book"></i> Daftar Buku
     </h4>
 
-    {{-- SEARCH --}}
-    <div class="row mb-4">
-        <div class="col-md-17">
+    {{-- 🔥 SEARCH --}}
+    <div class="row mb-3">
+        <div class="col-md-12">
             <input type="text" id="searchBuku" class="form-control shadow-sm"
                    placeholder="🔍 Cari judul buku...">
         </div>
     </div>
 
+    {{-- 🔥 FILTER KATEGORI --}}
+    <div class="mb-4 d-flex flex-wrap gap-2">
+
+        <button class="btn btn-sm btn-primary filter-btn" data-kategori="all">
+            Semua
+        </button>
+
+        @php
+            $kategoriUnik = $buku->pluck('kategori')->unique();
+        @endphp
+
+        @foreach($kategoriUnik as $k)
+            <button class="btn btn-sm btn-outline-primary filter-btn"
+                    data-kategori="{{ strtolower($k) }}">
+                {{ $k }}
+            </button>
+        @endforeach
+
+    </div>
+
+    {{-- 🔥 LIST BUKU --}}
     <div class="row" id="listBuku">
 
         @foreach($buku as $b)
 
-        <div class="col-md-4 mb-4 buku-item">
+        <div class="col-md-4 mb-4 buku-item"
+             data-kategori="{{ strtolower($b->kategori) }}">
 
-            <div class="card shadow-sm h-100 border-0">
+            <div class="card shadow-sm h-100 border-0 buku-card">
 
                 {{-- GAMBAR --}}
-                <img src="{{ asset('uploads/buku/'.$b->gambar) }}"
-                     class="card-img-top"
-                     style="height:200px; object-fit:cover;">
+                <div class="img-wrapper">
+                    <img src="{{ asset('uploads/buku/'.$b->gambar) }}"
+                         class="buku-img">
+                </div>
 
                 <div class="card-body d-flex flex-column">
 
@@ -42,19 +65,16 @@
 
                     {{-- INFO --}}
                     <p class="small text-muted mb-2">
-                        <b>Penulis:</b> {{ $b->penulis }} <br>
-                        <b>Tahun:</b> {{ $b->tahun_terbit }}
+                        {{ $b->penulis }} • {{ $b->tahun_terbit }}
                     </p>
 
                     {{-- KATEGORI --}}
-                    <p class="small text-muted mb-2">
-                        <b>Kategori:</b>
-                        {{ \Illuminate\Support\Str::limit($b->kategori, 15) }}
-                    </p>
+                    <span class="badge bg-light text-dark mb-2">
+                        {{ $b->kategori }}
+                    </span>
 
                     {{-- STOK --}}
                     <p class="mb-2">
-                        <b>Stok:</b>
                         @if($b->stok > 0)
                             <span class="text-success fw-semibold">
                                 {{ $b->stok }} tersedia
@@ -65,17 +85,6 @@
                             </span>
                         @endif
                     </p>
-
-                    {{-- STATUS --}}
-                    @if($b->stok > 0)
-                        <span class="badge bg-success mb-3">
-                            Tersedia
-                        </span>
-                    @else
-                        <span class="badge bg-danger mb-3">
-                            Dipinjam
-                        </span>
-                    @endif
 
                     {{-- BUTTON --}}
                     <div class="mt-auto d-flex gap-2">
@@ -113,25 +122,87 @@
 @endsection
 
 
+{{-- 🔥 STYLE --}}
+@push('css')
+<style>
+
+/* CARD */
+.buku-card {
+    border-radius: 15px;
+    transition: 0.3s;
+}
+
+.buku-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+/* GAMBAR */
+.img-wrapper {
+    height: 180px;
+    overflow: hidden;
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+}
+
+.buku-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* FILTER BUTTON */
+.filter-btn.active {
+    background: #0d6efd;
+    color: white;
+}
+
+</style>
+@endpush
+
+
+{{-- 🔥 SCRIPT --}}
 @push('js')
 <script>
-document.getElementById("searchBuku").addEventListener("keyup", function () {
 
+// 🔍 SEARCH
+document.getElementById("searchBuku").addEventListener("keyup", function () {
     let keyword = this.value.toLowerCase();
     let buku = document.querySelectorAll(".buku-item");
 
     buku.forEach(function (item) {
-
         let text = item.innerText.toLowerCase();
+        item.style.display = text.includes(keyword) ? "" : "none";
+    });
+});
 
-        if (text.includes(keyword)) {
-            item.style.display = "";
-        } else {
-            item.style.display = "none";
-        }
+
+// 🔥 FILTER KATEGORI
+let buttons = document.querySelectorAll(".filter-btn");
+let items = document.querySelectorAll(".buku-item");
+
+buttons.forEach(btn => {
+    btn.addEventListener("click", function () {
+
+        let kategori = this.dataset.kategori;
+
+        // aktif button
+        buttons.forEach(b => b.classList.remove("active"));
+        this.classList.add("active");
+
+        items.forEach(item => {
+
+            if (kategori === "all") {
+                item.style.display = "";
+            } else {
+                item.style.display =
+                    item.dataset.kategori === kategori ? "" : "none";
+            }
+
+        });
 
     });
-
 });
+
 </script>
 @endpush

@@ -24,6 +24,7 @@
                     <th>Tanggal Kembali</th>
                     <th>Denda</th>
                     <th>Status</th>
+                    <th>Aksi</th>
                 </tr>
             </thead>
 
@@ -48,10 +49,44 @@
 
                     {{-- denda --}}
                     <td>
-                        @if($d->denda > 0)
-                            <span class="text-danger">
-                                Rp {{ number_format($d->denda) }}
+                        @php
+                            $denda = 0;
+                            $hari = 0;
+
+                            // 🔥 kalau sudah dikembalikan
+                            if ($d->status == 'dikembalikan' && $d->tgl_dikembalikan) {
+
+                                if ($d->tgl_dikembalikan > $d->tgl_kembali) {
+
+                                    $hari = \Carbon\Carbon::parse($d->tgl_kembali)
+                                            ->startOfDay()
+                                            ->diffInDays(
+                                                \Carbon\Carbon::parse($d->tgl_dikembalikan)->startOfDay()
+                                            );
+
+                                    $denda = $hari * 1000;
+                                }
+
+                            }
+                            // 🔥 kalau masih dipinjam (realtime)
+                            elseif ($d->status == 'dipinjam' && now()->gt($d->tgl_kembali)) {
+
+                                $hari = \Carbon\Carbon::parse($d->tgl_kembali)
+                                        ->startOfDay()
+                                        ->diffInDays(now()->startOfDay());
+
+                                $denda = $hari * 1000;
+                            }
+                        @endphp
+
+                        @if($denda > 0)
+                            <span class="text-danger fw-semibold">
+                                Rp {{ number_format($denda) }}
                             </span>
+                            <br>
+                            <small class="text-danger">
+                                Terlambat {{ $hari }} hari
+                            </small>
                         @else
                             -
                         @endif
@@ -86,6 +121,14 @@
 
                         @endif
 
+                    </td>
+
+                    <td>
+                        <a href="/anggota/riwayat/detail/{{ $d->id_peminjaman }}"
+                        class="btn btn-sm btn-info"
+                        title="Detail">
+                            <i class="ti ti-eye"></i>
+                        </a>
                     </td>
 
                 </tr>

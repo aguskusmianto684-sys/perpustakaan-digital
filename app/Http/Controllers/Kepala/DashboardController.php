@@ -3,10 +3,11 @@
 namespace App\Http\Controllers\Kepala;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
 use App\Models\Peminjaman;
 use App\Models\Buku;
 use App\Models\Anggota;
+use Illuminate\Support\Facades\Auth;
+use App\Models\KepalaPerpustakaan;
 
 class DashboardController extends Controller
 {
@@ -18,7 +19,6 @@ class DashboardController extends Controller
 
         $bulanIni = Peminjaman::whereMonth('tgl_pinjam', now()->month)->count();
 
-        // buku populer
         $populer = Peminjaman::select('id_buku')
             ->selectRaw('count(*) as total')
             ->groupBy('id_buku')
@@ -27,8 +27,7 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-        // aktivitas terbaru
-        $latest = Peminjaman::with(['anggota', 'buku', 'petugas'])
+        $latest = Peminjaman::with(['anggota','buku','petugas'])
             ->latest('tgl_pinjam')
             ->take(5)
             ->get();
@@ -42,9 +41,11 @@ class DashboardController extends Controller
             'latest'
         ));
     }
+
+    // 🔥 TAMBAHAN INI
     public function profile()
     {
-        $kepala = Auth::user()->kepala;
+        $kepala = KepalaPerpustakaan::where('id_user', Auth::user()->id_user)->first();
 
         return view('kepala.profile', compact('kepala'));
     }

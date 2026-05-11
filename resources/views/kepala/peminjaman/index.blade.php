@@ -51,8 +51,43 @@
                         </td>
 
                         <td>
-                            @if($p->denda)
-                                Rp {{ number_format($p->denda) }}
+                            @php
+                                $denda = 0;
+                                $hari = 0;
+
+                                // 🔥 kalau masih dipinjam (realtime)
+                                if ($p->status == 'dipinjam' && now()->gt($p->tgl_kembali)) {
+
+                                    $hari = \Carbon\Carbon::parse($p->tgl_kembali)
+                                            ->startOfDay()
+                                            ->diffInDays(now()->startOfDay());
+
+                                    $denda = $hari * 1000;
+                                }
+
+                                // 🔥 kalau sudah dikembalikan (AMBIL DARI DB + HITUNG HARI)
+                                elseif ($p->status == 'dikembalikan' && $p->tgl_dikembalikan > $p->tgl_kembali) {
+
+                                    $hari = \Carbon\Carbon::parse($p->tgl_kembali)
+                                            ->startOfDay()
+                                            ->diffInDays(
+                                                \Carbon\Carbon::parse($p->tgl_dikembalikan)->startOfDay()
+                                            );
+
+                                    $denda = $hari * 1000;
+                                }
+                            @endphp
+
+                            @if($denda > 0)
+                                <span class="text-danger fw-semibold">
+                                    Rp {{ number_format($denda) }}
+                                </span>
+                                <br>
+
+                                <small class="text-danger">
+                                    Terlambat {{ $hari }} hari
+                                </small>
+
                             @else
                                 -
                             @endif

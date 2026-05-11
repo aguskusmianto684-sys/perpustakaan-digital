@@ -16,7 +16,7 @@
                     Perpustakaan
                 </span><br>
                 <span style="font-weight:500; font-size:14px; color:#000;">
-                    Web
+                    Digital
                 </span>
             </div>
         </div>
@@ -68,7 +68,9 @@
 
         {{-- RIWAYAT --}}
         <li class="sidebar-item">
-            <a class="sidebar-link {{ request()->segment(2) == 'riwayat' ? 'active' : '' }}" href="/petugas/riwayat">
+            <a class="sidebar-link {{ request()->is('petugas/riwayat*') ? 'active' : '' }}"
+            href="{{ route('petugas.riwayat') }}">
+
                 <i class="ti ti-history"></i>
                 <span class="hide-menu">Riwayat Peminjaman</span>
             </a>

@@ -9,7 +9,7 @@
 <div class="card">
     <div class="card-body">
 
-        <h4 class="mb-4">
+        <h4 class="mb-3">
             <i class="ti ti-book"></i> Detail Peminjaman
         </h4>
 
@@ -44,18 +44,36 @@
             </tr>
 
             <tr>
-                <th>Tanggal Kembali</th>
+                <th>Batas Kembali</th>
                 <td>{{ $data->tgl_kembali }}</td>
             </tr>
 
             <tr>
+                <th>Tanggal Dikembalikan</th>
+                <td>{{ $data->tgl_dikembalikan ?? '-' }}</td>
+            </tr>
+
+            {{-- 🔥 STATUS --}}
+            <tr>
                 <th>Status</th>
                 <td>
+
                     @if($data->status == 'menunggu')
                         <span class="badge bg-warning text-dark">Menunggu</span>
 
                     @elseif($data->status == 'dipinjam')
-                        <span class="badge bg-primary">Dipinjam</span>
+
+                        @php
+                            $terlambat = \Carbon\Carbon::parse($data->tgl_kembali)
+                                ->startOfDay()
+                                ->lt(now()->startOfDay());
+                        @endphp
+
+                        @if($terlambat)
+                            <span class="badge bg-danger">Terlambat</span>
+                        @else
+                            <span class="badge bg-primary">Dipinjam</span>
+                        @endif
 
                     @elseif($data->status == 'ditolak')
                         <span class="badge bg-dark">Ditolak</span>
@@ -63,19 +81,64 @@
                     @else
                         <span class="badge bg-success">Dikembalikan</span>
                     @endif
+
                 </td>
             </tr>
 
+            {{-- 🔥 DENDA FIX --}}
             <tr>
                 <th>Denda</th>
                 <td>
-                    @if($data->denda > 0)
-                        <span class="text-danger">
-                            Rp {{ number_format($data->denda) }}
+
+                    @php
+                        $denda = 0;
+                        $hari = 0;
+
+                        // 🔥 masih dipinjam & terlambat
+                        if ($data->status == 'dipinjam' && now()->gt($data->tgl_kembali)) {
+
+                            $hari = \Carbon\Carbon::parse($data->tgl_kembali)
+                                ->startOfDay()
+                                ->diffInDays(now()->startOfDay());
+
+                            $denda = $hari * 1000;
+                        }
+
+                        // 🔥 sudah dikembalikan & terlambat
+                        elseif ($data->status == 'dikembalikan' && $data->tgl_dikembalikan > $data->tgl_kembali) {
+
+                            $hari = \Carbon\Carbon::parse($data->tgl_kembali)
+                                ->startOfDay()
+                                ->diffInDays(
+                                    \Carbon\Carbon::parse($data->tgl_dikembalikan)->startOfDay()
+                                );
+
+                            $denda = $hari * 1000;
+                        }
+                    @endphp
+
+                    @if($denda > 0)
+                        <span class="text-danger fw-semibold">
+                            Rp {{ number_format($denda) }}
                         </span>
+                        <br>
+
+                        <small class="text-danger">
+                            Terlambat {{ $hari }} hari
+                        </small>
+
+                        {{-- 🔥 kalau sudah dikembalikan --}}
+                        @if($data->status == 'dikembalikan')
+                            <br>
+                            <small class="text-success">
+                                ✔ Sudah Lunas
+                            </small>
+                        @endif
+
                     @else
-                        -
+                        <span class="text-success">Tidak ada denda</span>
                     @endif
+
                 </td>
             </tr>
 

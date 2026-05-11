@@ -9,6 +9,7 @@
     <link rel="shortcut icon" href="{{ asset('assets/images/logos/buku.png') }}" />
     <link rel="stylesheet" href="{{ asset('assets/css/styles.min.css') }}" />
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    
 
     @stack('css')
 </head>

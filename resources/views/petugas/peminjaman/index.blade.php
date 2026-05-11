@@ -30,7 +30,7 @@
                         <th>Tanggal Kembali</th>
                         <th>Denda</th>
                         <th>Status</th>
-                        <th width="170">Aksi</th>
+                        <th width="120">Aksi</th>
                     </tr>
                 </thead>
 
@@ -46,17 +46,33 @@
                         <td>{{ $p->tgl_pinjam }}</td>
                         <td>{{ $p->tgl_kembali }}</td>
 
+                        {{-- 🔥 DENDA --}}
                         <td>
                             @php
                                 $denda = 0;
+                                $hari = 0;
 
                                 if ($p->status == 'dipinjam' && now()->gt($p->tgl_kembali)) {
-                                    $hari = \Carbon\Carbon::parse($p->tgl_kembali)->diffInDays(now());
+
+                                    $hari = \Carbon\Carbon::parse($p->tgl_kembali)
+                                            ->startOfDay()
+                                            ->diffInDays(now()->startOfDay());
+
                                     $denda = $hari * 1000;
                                 }
                             @endphp
 
-                            Rp {{ number_format($denda) }}
+                            @if($denda > 0)
+                                <span class="text-danger fw-semibold">
+                                    Rp {{ number_format($denda) }}
+                                </span>
+                                <br>
+                                <small class="text-danger">
+                                    Terlambat {{ $hari }} hari
+                                </small>
+                            @else
+                                -
+                            @endif
                         </td>
 
                         {{-- 🔥 STATUS --}}
@@ -71,7 +87,7 @@
                             @elseif($p->status == 'menunggu')
                                 <span class="badge bg-warning text-dark">Menunggu</span>
 
-                            @elseif($p->status == 'menunggu pengembalian') {{-- 🔥 TAMBAH --}}
+                            @elseif($p->status == 'menunggu pengembalian')
                                 <span class="badge bg-info">Menunggu Pengembalian</span>
 
                             @elseif($p->status == 'ditolak')
@@ -86,54 +102,76 @@
 
                         </td>
 
-                        {{-- 🔥 AKSI --}}
-                        <td>
+                        {{-- 🔥 AKSI CLEAN --}}
+                        <td class="text-center">
 
-                            {{-- KONFIRMASI PEMINJAMAN --}}
-                            @if($p->status == 'menunggu')
+                            <div class="d-flex justify-content-center gap-1">
 
-                                <a href="/petugas/peminjaman/konfirmasi/{{ $p->id_peminjaman }}"
-                                class="btn btn-success btn-sm">
-                                    Konfirmasi
+                                {{-- DETAIL --}}
+                                <a href="/petugas/peminjaman/detail/{{ $p->id_peminjaman }}"
+                                   class="btn btn-sm btn-info"
+                                   data-bs-toggle="tooltip"
+                                   title="Detail">
+                                    <i class="ti ti-eye"></i>
                                 </a>
 
-                                <a href="/petugas/peminjaman/tolak/{{ $p->id_peminjaman }}"
-                                class="btn btn-dark btn-sm"
-                                onclick="return confirm('Yakin ingin menolak peminjaman ini?')">
-                                    Tolak
-                                </a>
+                                {{-- DROPDOWN --}}
+                                <div class="dropdown">
 
-                            {{-- 🔥 KONFIRMASI / TOLAK PENGEMBALIAN --}}
-                            @elseif($p->status == 'menunggu pengembalian')
+                                    <button class="btn btn-sm btn-secondary"
+                                            data-bs-toggle="dropdown"
+                                            title="Aksi">
+                                        <i class="ti ti-dots-vertical"></i>
+                                    </button>
 
-                                <a href="/petugas/peminjaman/kembalikan/{{ $p->id_peminjaman }}"
-                                class="btn btn-success btn-sm"
-                                onclick="return confirm('Konfirmasi pengembalian buku ini?')">
-                                    Konfirmasi
-                                </a>
+                                    <ul class="dropdown-menu dropdown-menu-end">
 
-                                <a href="/petugas/peminjaman/tolak-pengembalian/{{ $p->id_peminjaman }}"
-                                class="btn btn-danger btn-sm"
-                                onclick="return confirm('Tolak pengembalian buku ini?')">
-                                    Tolak
-                                </a>
+                                        @if($p->status == 'menunggu')
 
-                            {{-- MASIH DIPINJAM --}}
-                            @elseif($p->status == 'dipinjam')
+                                            <li>
+                                                <a class="dropdown-item text-success"
+                                                   href="/petugas/peminjaman/konfirmasi/{{ $p->id_peminjaman }}">
+                                                    ✔ Konfirmasi
+                                                </a>
+                                            </li>
 
-                                <span class="text-muted">Dipinjam</span>
+                                            <li>
+                                                <a class="dropdown-item text-danger"
+                                                   href="/petugas/peminjaman/tolak/{{ $p->id_peminjaman }}"
+                                                   onclick="return confirm('Yakin ingin menolak?')">
+                                                    ✖ Tolak
+                                                </a>
+                                            </li>
 
-                            {{-- DITOLAK --}}
-                            @elseif($p->status == 'ditolak')
+                                        @elseif($p->status == 'menunggu pengembalian')
 
-                                <span class="badge bg-dark">Ditolak</span>
+                                            <li>
+                                                <a class="dropdown-item text-success"
+                                                   href="/petugas/peminjaman/kembalikan/{{ $p->id_peminjaman }}">
+                                                    ✔ Konfirmasi Pengembalian
+                                                </a>
+                                            </li>
 
-                            {{-- SELESAI --}}
-                            @else
+                                            <li>
+                                                <a class="dropdown-item text-danger"
+                                                   href="/petugas/peminjaman/tolak-pengembalian/{{ $p->id_peminjaman }}">
+                                                    ✖ Tolak
+                                                </a>
+                                            </li>
 
-                                <span class="badge bg-success">Selesai</span>
+                                        @else
+                                            <li>
+                                                <span class="dropdown-item text-muted">
+                                                    Tidak ada aksi
+                                                </span>
+                                            </li>
+                                        @endif
 
-                            @endif
+                                    </ul>
+
+                                </div>
+
+                            </div>
 
                         </td>
 
@@ -151,3 +189,16 @@
 </div>
 
 @endsection
+
+
+{{-- 🔥 TOOLTIP AKTIF --}}
+@push('js')
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    tooltipTriggerList.map(function (el) {
+        return new bootstrap.Tooltip(el)
+    })
+});
+</script>
+@endpush

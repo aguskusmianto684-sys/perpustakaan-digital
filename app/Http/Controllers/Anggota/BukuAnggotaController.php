@@ -220,6 +220,15 @@ class BukuAnggotaController extends Controller
         return back()->with('success', 'Pengembalian berhasil diajukan, tunggu konfirmasi petugas');
     }
 
+    public function detailPeminjaman($id)
+    {
+        $data = \App\Models\Peminjaman::with('buku')
+            ->where('id_peminjaman', $id)
+            ->first();
+
+        return view('anggota.riwayat.detail', compact('data'));
+    }
+
     /**
      * Menampilkan semua riwayat peminjaman buku
      */
